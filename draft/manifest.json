@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "change background color",
+    "version": "1.0",
+    "description": "Change background color of web pages",
+    "permissions": ["activeTab", "scripting", "contextMenus"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "16": "icons/16x16.png",
+        "48": "icons/48x48.png",
+        "128": "icons/128x128.png"
+    }
+}
