@@ -1,5 +1,30 @@
 {
+  "name": "content-moderation-middleware",
+  "version": "1.0.0",
+  "description": "This tool will provide the following functionalities: create a digital signature, check a digital signature, include digital signature in metadata string, remotely lookup hashes in a database",
+  "keywords": [
+    "content",
+    "moderation",
+    "digital",
+    "signature"
+  ],
+  "homepage": "https://github.com/miaadele/content-moderation-middleware#readme",
+  "bugs": {
+    "url": "https://github.com/miaadele/content-moderation-middleware/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miaadele/content-moderation-middleware.git"
+  },
+  "license": "UNLICENSED",
+  "contributors":["Mia Lassiter", "Vani Aggarwal"],
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
   "dependencies": {
     "c2pa": "^0.24.2"
-  }
+  },
+  "devDependencies": {}
 }
