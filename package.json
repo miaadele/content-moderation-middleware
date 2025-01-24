@@ -8,6 +8,10 @@
     "digital",
     "signature"
   ],
+  "main": "./bin/index.js",
+  "bin": {
+    "sdcli": "./bin/index.js"
+  },
   "homepage": "https://github.com/miaadele/content-moderation-middleware#readme",
   "bugs": {
     "url": "https://github.com/miaadele/content-moderation-middleware/issues"
@@ -17,14 +21,17 @@
     "url": "git+https://github.com/miaadele/content-moderation-middleware.git"
   },
   "license": "UNLICENSED",
-  "contributors":["Mia Lassiter", "Vani Aggarwal"],
+  "contributors": [
+    "Mia Lassiter",
+    "Vani Aggarwal"
+  ],
   "type": "commonjs",
-  "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "dependencies": {
-    "c2pa": "^0.24.2"
-  },
-  "devDependencies": {}
+    "c2pa": "^0.24.2",
+    "chalk": "^5.4.1",
+    "yargs": "^17.7.2"
+  }
 }
