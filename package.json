@@ -30,6 +30,7 @@
     "test": "mocha"
   },
   "dependencies": {
+    "@vscode/openssl-prebuilt": "^0.0.11",
     "c2pa": "^0.24.2",
     "chalk": "^5.4.1",
     "express": "^4.21.2",
