@@ -1,5 +1,11 @@
+import time
+import random
+import requests
 import snscrape.modules.twitter as snstwitter
 import pandas as pd
+
+def random_delay():
+	time.sleep(random.uniform(3,10))
 
 #defining search parameters
 query = "data scraping"
@@ -32,7 +38,7 @@ for tweet in snstwitter.TwitterSearchScraper(search_query).get_items():
         "user_id": tweet.user.id,
         "username": tweet.user.username,
     }
-
+    random_delay()
     tweets.append(tweet_data) #append each dictionary to the tweets list
 
     #create pandas DataFrame and save to Excel file
