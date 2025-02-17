@@ -5,6 +5,10 @@ from bs4 import BeautifulSoup as bs
 import json
 import time
 import getpass
+import re
+import urllib.parse
+from datetime import datetime, timezone
+import sys
 
 #initialize Chrome options
 chrome_options = Options()
@@ -25,12 +29,30 @@ browser.get("https://www.linkedin.com/login")
 browser.find_element(By.ID, "username").send_keys(username)
 browser.find_element(By.ID, "password").send_keys(password)
 browser.find_element(By.ID, "password").submit()
-time.sleep(3)
+time.sleep(2)
 browser.get(post_url)
-time.sleep(3)
+time.sleep(2)
 
 post_page = browser.page_source
 soup = bs(post_page, "html.parser")
+
+#post timestamp extraction code is from Ollie-Boyd's github
+timestamp = 1700000000
+class LIpostTimestampExtractor:
+    @staticmethod
+    def format_timestamp(timestamp_s, get_local: bool = False, return_datetime: bool = False):
+        #format timestamp to UTC
+        if get_local:
+            date = datetime.fromtimestamp(timestamp_s)
+            #return date.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        else:
+            date = datetime.fromtimestamp(timestamp_s, tz=timezone.utc)
+            #return date.strftime('%a, %d %b %Y %H:%M:%S GMT (UTC)')
+
+        if return_datetime:
+            return date
+        
+        return date.strftime('%a, %d %b %Y %H:%M:%S GMT' + (' (UTC)' if not get_local else ''))
 
 metadata = {}
 
@@ -44,15 +66,10 @@ try:
 except:
     metadata["likes"] = "0"
 
-try:
-    metadata["comments"] = soup.find("span", {"class": "social-details-social-counts__comments"}).text.strip()
+try: 
+    metadata["post_date"] = LIpostTimestampExtractor.format_timestamp(timestamp)
 except:
-    metadata["comments"] = "0"
-
-try:
-    metadata["shares"] = soup.find("span", {"class": "social-details-social-counts__shares"}).text.strip()
-except:
-    metadata["shares"] = "0"
+    metadata["post_date"] = "could not be calculated"
 
 # Save metadata to JSON file
 post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
