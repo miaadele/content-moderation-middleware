@@ -1,11 +1,12 @@
 #! /usr/bin/env node
-const yargs = require("yargs");
-const usage = "\nUsage: cldi <lang_name> sentence to be translated";
-const options = yargs.usage(usage).option("l", {
-    alias: "languages", 
-    describe:"List all supported languages.",
-    type: "boolean",
-    demandOption: false
-}).help(true).argv;
+const { spawn } = require("child_process");
 
-console.log("Hello world");
+
+const pythonScriptPath = "scraper/LI/scrape_lipost.py";
+const child = spawn("python3", [pythonScriptPath], {
+    stdio: "inherit",
+}); //spawn py script and use same input/output as Node.js process
+
+child.on("exit", (code)=>{
+    console.log(`Python script exited with code ${code}`);
+});

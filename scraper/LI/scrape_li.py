@@ -9,15 +9,21 @@ import re
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+#This program scrapes metadata from all posts on a company's LIn page.
+#The metadata is exported to a .csv and .txt file
+
 # Initialize Chrome options
 chrome_options = Options()
 
 # Set up date formatting for today's date
 today = datetime.today().strftime('%Y-%m-%d')
 
-#linkedin credentials, not my real account
-username = "mia.lassiter14@gmail.com"
-password = "cHs1422SC?"
+#linkedin credentials, read from stdin
+username = input("Enter username: ")
+password = input("Enter password: ")
+
+print(f"Received username: {username}")
+print(f"Received password: {password}")
 
 #url of page to scrape
 page = 'https://www.linkedin.com/company/walt-disney-imagineering'
