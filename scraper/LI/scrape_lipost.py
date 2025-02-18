@@ -36,10 +36,16 @@ time.sleep(2)
 post_page = browser.page_source
 soup = bs(post_page, "html.parser")
 
+#a 19-digit number is found in the LinkedIn URL. This is the post ID.
+timestampRegex = re.compile(r'\d{19}')
+mo = timestampRegex.search(post_url)
+if mo:
+    timestamp = mo.group()
+    print("Unique post ID: ", timestamp)
+else:
+    print("No unique ID found in URL")
+
 # post timestamp extraction code is from Ollie-Boyd's github
-timestamp = 1700000000
-
-
 class LIpostTimestampExtractor:
     @staticmethod
     def format_timestamp(
@@ -62,6 +68,7 @@ class LIpostTimestampExtractor:
 
 
 metadata = {}
+metadata["unique_post_id"] = timestamp
 
 try:
     metadata["post_text"] = soup.find(
