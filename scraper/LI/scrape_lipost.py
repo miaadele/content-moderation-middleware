@@ -37,20 +37,37 @@ post_page = browser.page_source
 soup = bs(post_page, "html.parser")
 
 #a 19-digit number is found in the LinkedIn URL. This is the post ID.
-timestampRegex = re.compile(r'\d{19}')
-mo = timestampRegex.search(post_url)
+idRegex = re.compile(r'\d{19}')
+mo = idRegex.search(post_url)
 if mo:
-    timestamp = mo.group()
-    print("Unique post ID: ", timestamp)
+    id = mo.group()
+    print("Unique post ID: ", id)
 else:
     print("No unique ID found in URL")
+
+#convert timestamp/postID which is a string 
+# into an integer, then into binary
+intid = int(id)
+print("intid is of type: ", type(intid))
+timestampbin = bin = "{0:b}".format(intid)
+
+
+# timestampbin = bin(intid)
+print(timestampbin)
+# print("timestampbin is of type: ", type(timestampbin))
+
+# extract_bits = lambda num, k, p: int(bin(num)[2:][p:p+k],2)
+#print("Extracted timestamp:", extract_bits)
+# timestamp = extract_bits(intid, 41, 2) 
+timestamp = timestampbin[:41]
+print("raw timestamp: ", timestamp)
+timestamp = int(timestamp, 2) / 1000
+print(timestamp)
 
 # post timestamp extraction code is from Ollie-Boyd's github
 class LIpostTimestampExtractor:
     @staticmethod
-    def format_timestamp(
-        timestamp_s, get_local: bool = False, return_datetime: bool = False
-    ):
+    def format_timestamp(timestamp_s, get_local: bool = False, return_datetime: bool = False):
         # format timestamp to UTC
         if get_local:
             date = datetime.fromtimestamp(timestamp_s)
@@ -68,7 +85,7 @@ class LIpostTimestampExtractor:
 
 
 metadata = {}
-metadata["unique_post_id"] = timestamp
+metadata["unique_post_id"] = id
 
 try:
     metadata["post_text"] = soup.find(
@@ -86,7 +103,8 @@ except:
 
 try:
     metadata["post_date"] = LIpostTimestampExtractor.format_timestamp(timestamp)
-except:
+except Exception as e:
+    print("Timestamp formatting: ", e)
     metadata["post_date"] = "could not be calculated"
 
 
