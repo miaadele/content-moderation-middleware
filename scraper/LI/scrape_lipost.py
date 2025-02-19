@@ -3,16 +3,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup as bs
 import json
-import time
 import getpass
 import re
-import urllib.parse
 from datetime import datetime, timezone
-import sys
 
 # initialize Chrome options
 chrome_options = Options()
-# chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 
@@ -29,10 +25,7 @@ browser.get("https://www.linkedin.com/login")
 browser.find_element(By.ID, "username").send_keys(username)
 browser.find_element(By.ID, "password").send_keys(password)
 browser.find_element(By.ID, "password").submit()
-time.sleep(2)
 browser.get(post_url)
-time.sleep(2)
-
 post_page = browser.page_source
 soup = bs(post_page, "html.parser")
 
@@ -45,36 +38,23 @@ if mo:
 else:
     print("No unique ID found in URL")
 
-#convert timestamp/postID which is a string 
-# into an integer, then into binary
+#decode id to determine the timestamp
+#convert id into binary and extract the first 41 bits
+#convert the bits back into decimal
 intid = int(id)
-print("intid is of type: ", type(intid))
 timestampbin = bin = "{0:b}".format(intid)
-
-
-# timestampbin = bin(intid)
-print(timestampbin)
-# print("timestampbin is of type: ", type(timestampbin))
-
-# extract_bits = lambda num, k, p: int(bin(num)[2:][p:p+k],2)
-#print("Extracted timestamp:", extract_bits)
-# timestamp = extract_bits(intid, 41, 2) 
 timestamp = timestampbin[:41]
-print("raw timestamp: ", timestamp)
 timestamp = int(timestamp, 2) / 1000
-print(timestamp)
 
-# post timestamp extraction code is from Ollie-Boyd's github
+# post timestamp conversion code is from Ollie-Boyd's github
 class LIpostTimestampExtractor:
     @staticmethod
     def format_timestamp(timestamp_s, get_local: bool = False, return_datetime: bool = False):
         # format timestamp to UTC
         if get_local:
             date = datetime.fromtimestamp(timestamp_s)
-            # return date.strftime('%a, %d %b %Y %H:%M:%S GMT')
         else:
             date = datetime.fromtimestamp(timestamp_s, tz=timezone.utc)
-            # return date.strftime('%a, %d %b %Y %H:%M:%S GMT (UTC)')
 
         if return_datetime:
             return date
@@ -82,7 +62,6 @@ class LIpostTimestampExtractor:
         return date.strftime(
             "%a, %d %b %Y %H:%M:%S GMT" + (" (UTC)" if not get_local else "")
         )
-
 
 metadata = {}
 metadata["unique_post_id"] = id
@@ -107,16 +86,13 @@ except Exception as e:
     print("Timestamp formatting: ", e)
     metadata["post_date"] = "could not be calculated"
 
-
 # Save metadata to JSON file
 post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
 json_filename = f"linkedin_post_{post_id}.json"
 
-
 # remove characters invalid in windows
 def clean_filename(filename):
     return re.sub(r'[<>:"/\\|?*]', "_", filename)
-
 
 json_filename = clean_filename(json_filename)
 
@@ -125,5 +101,5 @@ with open(json_filename, "w", encoding="utf-8") as json_file:
 
 print(f"Post metadata saved to {json_filename}")
 
-# Close the browser
+# Close browser
 browser.quit()
