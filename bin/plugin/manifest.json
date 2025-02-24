@@ -1,13 +1,16 @@
 {
     "manifest_version": 3,
-    "name": "change background color",
+    "name": "Ascertion",
     "version": "1.0",
-    "description": "Change background color of web pages",
-    "permissions": ["activeTab", "scripting", "contextMenus"],
-    "background": {
-        "service_worker": "background.js"
-    },
+    "description": "SD plugin",
+    "permissions": ["activeTab", "scripting", "downloads"],
     "action": {
         "default_popup": "popup.html"
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.linkedin.com/*"],
+            "js": ["popup.js"]
+        }
+    ]
 }
