@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from chromedriver_autoinstaller import install
 from bs4 import BeautifulSoup as bs
 import json
 import getpass
@@ -93,8 +94,8 @@ browser.get(post_url)
 post_page = browser.page_source
 soup = bs(post_page, "html.parser")
 
-#a 19-digit number is found in the LinkedIn URL. This is the post ID.
-idRegex = re.compile(r'\d{19}')
+# a 19-digit number is found in the LinkedIn URL. This is the post ID.
+idRegex = re.compile(r"\d{19}")
 mo = idRegex.search(post_url)
 if mo:
     id = mo.group()
@@ -102,18 +103,21 @@ if mo:
 else:
     print("No unique ID found in URL")
 
-#decode id to determine the timestamp
-#convert id into binary and extract the first 41 bits
-#convert the bits back into decimal
+# decode id to determine the timestamp
+# convert id into binary and extract the first 41 bits
+# convert the bits back into decimal
 intid = int(id)
 timestampbin = bin = "{0:b}".format(intid)
 timestamp = timestampbin[:41]
 timestamp = int(timestamp, 2) / 1000
 
+
 # post timestamp conversion code is from Ollie-Boyd's github
 class LIpostTimestampExtractor:
     @staticmethod
-    def format_timestamp(timestamp_s, get_local: bool = False, return_datetime: bool = False):
+    def format_timestamp(
+        timestamp_s, get_local: bool = False, return_datetime: bool = False
+    ):
         # format timestamp to UTC
         if get_local:
             date = datetime.fromtimestamp(timestamp_s)
@@ -126,6 +130,7 @@ class LIpostTimestampExtractor:
         return date.strftime(
             "%a, %d %b %Y %H:%M:%S GMT" + (" (UTC)" if not get_local else "")
         )
+
 
 metadata = {}
 metadata["unique_post_id"] = id
@@ -172,11 +177,13 @@ print("Post metadata saved to MongoDB.")
 # post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
 # json_filename = f"linkedin_post_{post_id}.json"
 
+
 # remove characters invalid in windows
 def clean_filename(filename):
   return re.sub(r'[<>:"/\\|?*]', "_", filename)
 
 # json_filename = clean_filename(json_filename)
+
 
 # with open(json_filename, "w", encoding="utf-8") as json_file:
 #    json.dump(metadata, json_file, indent=4, ensure_ascii=False)
