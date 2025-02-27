@@ -1,8 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from chromedriver_autoinstaller import install
-from chrome_extension_python import Extension
+
+# from chromedriver_autoinstaller import install
+# from chrome_extension_python import Extension
 from bs4 import BeautifulSoup as bs
 import json
 import getpass
@@ -18,7 +19,7 @@ import os
 import rsa
 
 # mongodb connect
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("MONGO_URI")
 db = client["linkedin_scraper"]
 collection = db["posts"]
 
@@ -74,12 +75,12 @@ def rsa_encrypt(public_key, text):
 
 
 # extension path
-extension_path = "chrome://extensions/?id=hfkhhbiomgmepddmfgcogiljmkndeojf"
+# extension_path = "chrome://extensions/?id=hfkhhbiomgmepddmfgcogiljmkndeojf"
 # initialize Chrome options
 chrome_options = Options()
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument(Extension(extension_path).load())
+# chrome_options.add_argument(Extension(extension_path).load())
 
 # prompt user for credentials and post URL
 username = input("Enter LinkedIn username: ")
@@ -87,8 +88,8 @@ password = getpass.getpass("Enter LinkedIn password: ")
 post_url = input("Enter the URL of the LinkedIn post: ").strip()
 
 # open LI page and sign in
-driver_path = install()
-browser = webdriver.Chrome(driver_path, options=chrome_options)
+# driver_path = install()
+browser = webdriver.Chrome(options=chrome_options)
 browser.get("https://www.linkedin.com/login")
 
 # login and navigate to specific post
