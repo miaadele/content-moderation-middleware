@@ -1,0 +1,33 @@
+{
+    "manifest_version": 3, 
+    "name": "Ascertion", 
+    "version": "1.0", 
+    "description": "Enables content moderation in the users' hands.",
+    "permissions": [
+        "activeTab", 
+        "scripting", 
+        "storage"
+    ], 
+    "host_permissions": [
+        "<all_urls"
+    ], 
+    "background": {
+        "service_worker": "background.js"
+    }, 
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"], 
+            "js": ["content.js"]
+        }
+    ], 
+    "icons": {
+        "128": "icons/128.png"
+    }, 
+    "action": {
+        "default_popup": "popup.html", 
+        "default_icon": {
+            "128": "icons/128.png"
+        }, 
+        "default_title": "Click to activate"
+    }
+}
