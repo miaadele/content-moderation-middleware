@@ -1,18 +1,30 @@
 const express = require('express');
 const { exec } = require('child_process');
 const connectDB = require('./config/db'); 
-
+const cors = require("cors"); 
+const bodyParser = require("body-parser"); 
 const app = express();
 const port = 3000;
+
+app.use(cors()); 
+app.use(bodyParser.json()); // to parse json
 
 // Connect to the database
 connectDB(); 
 
-app.get("/run-python", (req, res) => {
-    const pythonScript = "scraper/LI/scrape_lipost.py"; 
+app.post("/run-python", (req, res) => {
+    const { username, password, postUrl } = req.body; 
+
+    if (!username || !password || !postUrl ) {
+        return res.status(400).send("Missing required fields."); 
+    }
+
+    console.log("Received data: ", {username, password, postUrl}); // take out later; only for testing purposes rn
+
+    //const pythonScript = "scraper/LI/scrape_lipost.py"; 
 
     // Run the Python script using child_process
-    exec(`python ${pythonScript}`, (err, stdout, stderr) => {
+    exec(`python scraper/LI/scrape_lipost.py "${username}" "${password}" "${postUrl}"`, (err, stdout, stderr) => {
         if (err) {
             console.error(`exec error: ${err}`);
             res.status(500).send("Error running Python script");

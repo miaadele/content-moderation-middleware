@@ -14,10 +14,20 @@ import pymongo
 import hashlib
 import base64  # to encode bytes into 64 so json doesn't scream
 from bson import ObjectId  # type error fix
+import sys
 
 # import subprocess
 import os
 import rsa
+
+# arguments from node
+if len(sys.argv) != 4:  # first one is process
+    print("usage wrong")
+    sys.exit(1)
+
+username = sys.argv[1]
+password = sys.argv[2]
+post_url = sys.argv[3]
 
 # mongodb connect
 dotenv_path = os.path.join(
@@ -90,9 +100,9 @@ chrome_options.add_argument("--no-sandbox")
 # chrome_options.add_argument(Extension(extension_path).load())
 
 # prompt user for credentials and post URL
-username = input("Enter LinkedIn username: ")
-password = getpass.getpass("Enter LinkedIn password: ")
-post_url = input("Enter the URL of the LinkedIn post: ").strip()
+# username = input("Enter LinkedIn username: ")
+# password = getpass.getpass("Enter LinkedIn password: ")
+# post_url = input("Enter the URL of the LinkedIn post: ").strip()
 
 # open LI page and sign in
 # driver_path = install()
