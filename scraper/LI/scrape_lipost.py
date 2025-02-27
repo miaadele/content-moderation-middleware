@@ -6,6 +6,70 @@ import json
 import getpass
 import re
 from datetime import datetime, timezone
+import sys
+import pymongo
+import hashlib
+import base64  # to encode bytes into 64 so json doesn't scream
+from bson import ObjectId  # type error fix
+
+# import subprocess
+import os
+import rsa
+
+# mongodb connect
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+db = client["linkedin_scraper"]
+collection = db["posts"]
+
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Get script directory
+
+# generate rsa keys: 2048-bit
+(public_key, private_key) = rsa.newkeys(2048)
+
+
+def encode_base64(data):
+    return base64.b64encode(data).decode("utf-8")
+
+
+# function to convert mongodb objectid to string
+def objectid_to_str(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    elif isinstance(obj, dict):
+        return {key: objectid_to_str(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [objectid_to_str(item) for item in obj]
+    return obj
+
+
+# hash posts using sha-256
+def compute_sha256(text):
+    # oh how i love you hashlib
+    sha256_hash = hashlib.sha256()  # create
+    sha256_hash.update(text.encode("utf-8"))
+    return sha256_hash.hexdigest()
+
+
+# hashing_path = os.path.join(BASE_DIR, "rsa\hashing.exe")
+# result = subprocess.run(
+#     [hashing_path], input=text.encode(), capture_output=True, text=True
+# )
+# return result.stdout.strip()
+
+
+# Function to encrypt the hashed text using RSA
+# def rsa_encrypt(text):
+#   rsa_path = os.path.join(BASE_DIR, "..\rsa\rsa.exe")
+#   result = subprocess.run(
+#       [rsa_path, "encrypt"], input=text.encode(), capture_output=True, text=True
+#    )
+#   return result.stdout.strip()
+
+
+# function to encrypt hashed text using RSA, please work
+def rsa_encrypt(public_key, text):
+    encrypted_data = rsa.encrypt(text.encode("utf-8"), public_key)
+    return encrypted_data
 
 # initialize Chrome options
 chrome_options = Options()
@@ -86,20 +150,38 @@ except Exception as e:
     print("Timestamp formatting: ", e)
     metadata["post_date"] = "could not be calculated"
 
+# hash the post_text
+hashed_post_text = compute_sha256(metadata["post_text"])
+metadata["post_text_hash"] = hashed_post_text
+
+# encrypt hashed post using rsa
+encrypted_post_text = rsa_encrypt(public_key, hashed_post_text)
+encoded_encrypted_post_text = encode_base64(encrypted_post_text)
+metadata["post_text_encrypted"] = encoded_encrypted_post_text
+
+# convertion happening here
+metadata = objectid_to_str(
+    metadata
+)  # {key: objectid_to_str(value) for key, value in metadata.items()}
+
+# save metadata to mongodb
+collection.insert_one(metadata)
+print("Post metadata saved to MongoDB.")
+
 # Save metadata to JSON file
-post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
-json_filename = f"linkedin_post_{post_id}.json"
+# post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
+# json_filename = f"linkedin_post_{post_id}.json"
 
 # remove characters invalid in windows
 def clean_filename(filename):
-    return re.sub(r'[<>:"/\\|?*]', "_", filename)
+  return re.sub(r'[<>:"/\\|?*]', "_", filename)
 
-json_filename = clean_filename(json_filename)
+# json_filename = clean_filename(json_filename)
 
-with open(json_filename, "w", encoding="utf-8") as json_file:
-    json.dump(metadata, json_file, indent=4, ensure_ascii=False)
+# with open(json_filename, "w", encoding="utf-8") as json_file:
+#    json.dump(metadata, json_file, indent=4, ensure_ascii=False)
 
-print(f"Post metadata saved to {json_filename}")
+# print(f"Post metadata saved to {json_filename}")
 
 # Close browser
 browser.quit()
