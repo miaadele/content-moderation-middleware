@@ -1,0 +1,13 @@
+{
+    "manifest_version": 3,
+    "name": "change background color",
+    "version": "1.0",
+    "description": "Change background color of web pages",
+    "permissions": ["activeTab", "scripting", "contextMenus"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    }
+}

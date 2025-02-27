@@ -3,10 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup as bs
 import json
-import time
 import getpass
 import re
-import urllib.parse
 from datetime import datetime, timezone
 import sys
 import pymongo
@@ -73,10 +71,8 @@ def rsa_encrypt(public_key, text):
     encrypted_data = rsa.encrypt(text.encode("utf-8"), public_key)
     return encrypted_data
 
-
 # initialize Chrome options
 chrome_options = Options()
-# chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 
@@ -93,29 +89,36 @@ browser.get("https://www.linkedin.com/login")
 browser.find_element(By.ID, "username").send_keys(username)
 browser.find_element(By.ID, "password").send_keys(password)
 browser.find_element(By.ID, "password").submit()
-time.sleep(2)
 browser.get(post_url)
-time.sleep(2)
-
 post_page = browser.page_source
 soup = bs(post_page, "html.parser")
 
-# post timestamp extraction code is from Ollie-Boyd's github
-timestamp = 1700000000
+#a 19-digit number is found in the LinkedIn URL. This is the post ID.
+idRegex = re.compile(r'\d{19}')
+mo = idRegex.search(post_url)
+if mo:
+    id = mo.group()
+    print("Unique post ID: ", id)
+else:
+    print("No unique ID found in URL")
 
+#decode id to determine the timestamp
+#convert id into binary and extract the first 41 bits
+#convert the bits back into decimal
+intid = int(id)
+timestampbin = bin = "{0:b}".format(intid)
+timestamp = timestampbin[:41]
+timestamp = int(timestamp, 2) / 1000
 
+# post timestamp conversion code is from Ollie-Boyd's github
 class LIpostTimestampExtractor:
     @staticmethod
-    def format_timestamp(
-        timestamp_s, get_local: bool = False, return_datetime: bool = False
-    ):
+    def format_timestamp(timestamp_s, get_local: bool = False, return_datetime: bool = False):
         # format timestamp to UTC
         if get_local:
             date = datetime.fromtimestamp(timestamp_s)
-            # return date.strftime('%a, %d %b %Y %H:%M:%S GMT')
         else:
             date = datetime.fromtimestamp(timestamp_s, tz=timezone.utc)
-            # return date.strftime('%a, %d %b %Y %H:%M:%S GMT (UTC)')
 
         if return_datetime:
             return date
@@ -124,8 +127,8 @@ class LIpostTimestampExtractor:
             "%a, %d %b %Y %H:%M:%S GMT" + (" (UTC)" if not get_local else "")
         )
 
-
 metadata = {}
+metadata["unique_post_id"] = id
 
 try:
     metadata["post_text"] = soup.find(
@@ -143,9 +146,9 @@ except:
 
 try:
     metadata["post_date"] = LIpostTimestampExtractor.format_timestamp(timestamp)
-except:
+except Exception as e:
+    print("Timestamp formatting: ", e)
     metadata["post_date"] = "could not be calculated"
-
 
 # hash the post_text
 hashed_post_text = compute_sha256(metadata["post_text"])
@@ -169,11 +172,9 @@ print("Post metadata saved to MongoDB.")
 # post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
 # json_filename = f"linkedin_post_{post_id}.json"
 
-
 # remove characters invalid in windows
 def clean_filename(filename):
-    return re.sub(r'[<>:"/\\|?*]', "_", filename)
-
+  return re.sub(r'[<>:"/\\|?*]', "_", filename)
 
 # json_filename = clean_filename(json_filename)
 
@@ -182,5 +183,5 @@ def clean_filename(filename):
 
 # print(f"Post metadata saved to {json_filename}")
 
-# Close the browser
+# Close browser
 browser.quit()
