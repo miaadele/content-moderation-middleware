@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from dotenv import load_dotenv
 
 # from chromedriver_autoinstaller import install
 # from chrome_extension_python import Extension
@@ -19,7 +20,13 @@ import os
 import rsa
 
 # mongodb connect
-client = pymongo.MongoClient("MONGO_URI")
+dotenv_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env"
+)
+load_dotenv(dotenv_path)
+mongo_uri = os.getenv("MONGO_URI")
+print("Using MongoDB URI:", mongo_uri)
+client = pymongo.MongoClient(mongo_uri)
 db = client["linkedin_scraper"]
 collection = db["posts"]
 
