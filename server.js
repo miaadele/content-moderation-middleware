@@ -12,7 +12,7 @@ app.use(bodyParser.json()); // to parse json
 // Connect to the database
 connectDB(); 
 
-app.post("/run-python", (req, res) => {
+app.post("/run-python3", (req, res) => {
     const { username, password, postUrl } = req.body; 
 
     if (!username || !password || !postUrl ) {
@@ -24,7 +24,7 @@ app.post("/run-python", (req, res) => {
     //const pythonScript = "scraper/LI/scrape_lipost.py"; 
 
     // Run the Python script using child_process
-    exec(`python scraper/LI/scrape_lipost.py "${username}" "${password}" "${postUrl}"`, (err, stdout, stderr) => {
+    exec(`python3 scraper/LI/scrape_lipost.py "${username}" "${password}" "${postUrl}"`, (err, stdout, stderr) => {
         if (err) {
             console.error(`exec error: ${err}`);
             res.status(500).send("Error running Python script");
