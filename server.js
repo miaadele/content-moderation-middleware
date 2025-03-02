@@ -12,7 +12,7 @@ app.use(bodyParser.json()); // to parse json
 // Connect to the database
 connectDB(); 
 
-app.post("/run-python3", (req, res) => {
+app.post("/run-python", (req, res) => {
     const { username, password, postUrl } = req.body; 
 
     if (!username || !password || !postUrl ) {
