@@ -4,7 +4,6 @@
     "version": "1.0", 
     "description": "Enables content moderation in the users' hands.",
     "permissions": [
-        "tabs",
         "activeTab", 
         "scripting", 
         "storage",
