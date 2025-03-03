@@ -19,9 +19,7 @@ app.post("/run-python", (req, res) => {
         return res.status(400).send("Missing required fields."); 
     }
 
-    console.log("Received data: ", {username, password, postUrl}); // take out later; only for testing purposes rn
-
-    //const pythonScript = "scraper/LI/scrape_lipost.py"; 
+    //console.log("Received data: ", {username, password, postUrl}); 
 
     // Run the Python script using child_process
     exec(`python3 scraper/LI/scrape_lipost.py "${username}" "${password}" "${postUrl}"`, (err, stdout, stderr) => {

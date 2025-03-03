@@ -4,12 +4,14 @@
     "version": "1.0", 
     "description": "Enables content moderation in the users' hands.",
     "permissions": [
+        "tabs",
         "activeTab", 
         "scripting", 
-        "storage"
+        "storage",
+        "contextMenus"
     ], 
     "host_permissions": [
-        "<all_urls>"
+        "https://*/"
     ], 
     "background": {
         "service_worker": "background.js"
@@ -24,7 +26,6 @@
         "128": "icons/128.png"
     }, 
     "action": {
-        "default_popup": "popup.html", 
         "default_icon": {
             "128": "icons/128.png"
         }, 
