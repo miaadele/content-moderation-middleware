@@ -22,7 +22,7 @@
         }
     ], 
     "icons": {
-        "128": "icons/128.png"
+        "128": "icons/placeholder.png"
     }, 
     "action": {
         "default_icon": {
