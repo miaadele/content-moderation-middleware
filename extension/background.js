@@ -1,5 +1,21 @@
 //Service worker
 
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Content script running!");
+    const LIpost = document.querySelectorAll('.fie-impression-container');
+    // console.log(postElts);
+
+    LIpost.forEach( post => {
+        const postElts = post.querySelectorAll('*');
+        console.log(postElts);
+
+        postElts.forEach(element => {
+            element.addEventListener('click', function() {
+                console.log('Element clicked');
+            });
+        });
+    });
+})
 
 //Context menu creation
 chrome.contextMenus.create({
