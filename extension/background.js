@@ -1,16 +1,21 @@
 //Service worker
+console.log("background service worker script loaded");
+
+//service worker
+console.log("background service worker script loaded");
+chrome.runtime.onInstalled.addListener(() => {
+    console.log("service worker installed");
+})
 
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.action.setBadgeText({
-        text: "OFF",
-    });
+    console.log("service worker installed");
     //Context menu creation
     chrome.contextMenus.create({
         id: 'ContextMenu',
         title: 'Ascertion',
         type: "normal",
-        contexts: ['all'], // change later to click on a post
-        visible: false //initially hidden
+        contexts: ['all'],
+        //visible: false //initially hidden
     });
     chrome.contextMenus.create({
         id: 'ca',
@@ -29,7 +34,7 @@ chrome.runtime.onInstalled.addListener(() => {
         title: 'View Metadata',
         parentId: "ContextMenu",
         type: "normal"
-    });
+    }); 
     chrome.contextMenus.create({
         id: 'radio1',
         title: 'CA Option 1',
@@ -63,3 +68,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         chrome.contextMenus.update('ContextMenu', {visible: true});
     }
 });
+
+// chrome.browserAction.onClicked.addListener(function() {
+//     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+//         chrome.tabs.sendMessage(tabs[0].id, {command: "click"}, function(response) {
+//             console.log(response.result);
+//         });
+//     });
+// });

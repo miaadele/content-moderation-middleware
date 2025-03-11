@@ -1,30 +1,33 @@
 console.log("First line of content.js");
-//The MutationObserver listens for dynamic changes to the DOM
 
 // Use MutationObserver to detect when new posts are added dynamically
 const observer1 = new MutationObserver(() => {
-    const posts = document.querySelectorAll('.fie-impression-container'); // LinkedIn post container
-    console.log('Posts detected:', posts); // Log detected posts
+    var posts = document.querySelectorAll('.fie-impression-container'); // LinkedIn post container
+    //console.log('Posts detected:', posts); // Log detected posts
     
     posts.forEach(post => {
         post.addEventListener('contextmenu', function(event) {
-        console.log('Right-click detected on post');
+        //console.log('Right-click detected on post');
         event.preventDefault(); // Prevent the default context menu
-        // Send a message to the background script to show the custom context menu
-        chrome.runtime.sendMessage({ action: 'showContextMenu' });
+        chrome.runtime.sendMessage({ action: 'showContextMenu' }); // Send message to background script to show context menu
         });
     });
 });
     
 observer1.observe(document.body, { childList: true, subtree: true });
 
-const observer = new MutationObserver(() => {
+//Use MutationObserver listens for dynamic changes to the DOM
+/*
+const observer2 = new MutationObserver(() => {
     const links = document.getElementsByClassName("artdeco-toast-item__cta"); //links is an HTMLCollection
-    const linksArray = Array.from(links).map(link => link.outerHTML); //convert links to linksArray
-    console.log(linksArray);
+    console.log(links);
+    var linksArray = new Map();
+    linksArray.set("link", links[0].href);
     chrome.runtime.sendMessage({
         type: 'elements',
         data: linksArray
     });
 });
 
+observer2.observe(document.body, { childList: true, subtree: true }); 
+*/
