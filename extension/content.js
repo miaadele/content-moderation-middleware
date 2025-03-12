@@ -3,15 +3,13 @@ console.log("First line of content.js");
 // Use MutationObserver to detect when new posts are added dynamically
 const observer1 = new MutationObserver(() => {
     var posts = document.querySelectorAll('.fie-impression-container'); // LinkedIn post container
-    //console.log('Posts detected:', posts); // Log detected posts
     
-    posts.forEach(post => {
-        post.addEventListener('contextmenu', function(event) {
-        //console.log('Right-click detected on post');
-        event.preventDefault(); // Prevent the default context menu
-        chrome.runtime.sendMessage({ action: 'showContextMenu' }); // Send message to background script to show context menu
-        });
-    });
+    // posts.forEach(post => {
+    //     post.addEventListener('contextmenu', function() {
+    //     console.log('Right-click detected on post');
+    //     chrome.runtime.sendMessage({ action: 'showContextMenu' }); // Send message to background script to show context menu
+    //     });
+    // });
 });
     
 observer1.observe(document.body, { childList: true, subtree: true });
