@@ -4,6 +4,7 @@
     "version": "1.0", 
     "description": "Text verification on social media platforms.",
     "permissions": [
+        "nativeMessaging",
         "activeTab", 
         "scripting", 
         "storage",
