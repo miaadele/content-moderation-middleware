@@ -8,10 +8,20 @@ chrome.runtime.onInstalled.addListener(() => {
 }) */
 
 // linkedin API 
-const CLIENT_ID = "86ktdpvf7vxovy"; 
-const CLIENT_SECRET = "WPL_AP1.GPS5z6arB9U0xWGI.VkJXNg=="; // need to hide this but for now putting it here just to see if it works
-const REDIRECT_URI = "https://hfkhhbiomgmepddmfgcogiljmkndeojf.chromiumapp.org/"; 
+let CLIENT_ID = ""; 
+
+// Fetch LinkedIn Client ID from dotenv
+fetch("http://localhost:3000/api/linkedin-credentials")
+    .then(response => response.json())
+    .then(data => {
+        CLIENT_ID = data.clientId;
+        console.log("LinkedIn Client ID Loaded:", CLIENT_ID);
+    })
+    .catch(error => console.error("Error fetching LinkedIn Client ID:", error));
+
+const REDIRECT_URI = "https://hfkhhbiomgmepddmfgcogiljmkndeojf.chromiumapp.org/";
 const AUTH_URL = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=w_member_social`;
+
 
 
 // login for LinkedIn
@@ -44,33 +54,35 @@ function loginwithLinkedIn(sendResponse) {
 async function exchangeAuthCodeForAccessToken(authCode, sendResponse) {
     try {
         const response = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
-            method: "POST", 
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
-                grant_type: "authorization_code", 
-                code: authCode, 
-                redirect_uri: REDIRECT_URI, 
-                client_id: CLIENT_ID, 
+                grant_type: "authorization_code",
+                code: authCode,
+                redirect_uri: REDIRECT_URI,
+                client_id: CLIENT_ID,
                 client_secret: CLIENT_SECRET
             })
-        }); 
+        });
 
-        const data = await response.json(); 
+        const data = await response.json();
+        console.log("LinkedIn API Response:", data); // debug please
 
         if (data.access_token) {
             chrome.storage.local.set({ linkedinAccessToken: data.access_token }, () => {
-                console.log("Access token saved."); 
-                sendResponse({ success: true, accessToken: data.access_token }); 
-            }); 
+                console.log("Access token saved:", data.access_token);
+                sendResponse({ success: true, accessToken: data.access_token });
+            });
         } else {
-            console.error("Token exchange failed:", data); 
-            sendResponse({ success: false, error: data }); 
+            console.error("Token exchange failed:", data);
+            sendResponse({ success: false, error: data });
         }
     } catch (error) {
-        console.error("Token exchange error:", error); 
-        sendResponse({ success: false, error }); 
+        console.error("Token exchange error:", error);
+        sendResponse({ success: false, error });
     }
 }
+
 
 // listen for messages from content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
