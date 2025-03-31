@@ -4,7 +4,6 @@
     "version": "1.0", 
     "description": "Text verification on social media platforms.",
     "permissions": [
-        "nativeMessaging",
         "activeTab", 
         "scripting", 
         "storage",
@@ -30,5 +29,12 @@
             "128": "icons/128.png"
         }, 
         "default_title": "Click to activate"
+    }, 
+    "oauth2": {
+        "client_id": "86ktdpvf7vxovy",
+        "scopes": ["w_member_social"]
+    }, 
+    "externally_connectable": {
+        "matches": ["https://www.linkedin.com/*"]
     }
 }
