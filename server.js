@@ -1,3 +1,5 @@
+// LINKEDIN API not working bc of automated script 
+falojfaoe
 require('dotenv').config(); 
 
 const express = require('express');
