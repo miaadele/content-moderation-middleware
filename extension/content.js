@@ -1,4 +1,20 @@
-console.log("First line of content.js");
+console.log("First line of content.js"); 
+
+function postData(input) {
+    $.ajax({
+        type: "POST",
+        url: "../scraper/LI/scrape_lipost.py",
+        data: { param: input }, 
+        success: callbackfn
+    });
+}
+
+
+function callbackfn(response) {
+    console.log(response);
+}
+
+postData('data');
 
 // Use MutationObserver to detect when new posts are added dynamically
 const observer1 = new MutationObserver(() => {
