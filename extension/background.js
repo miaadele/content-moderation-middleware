@@ -136,6 +136,13 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     }
 });
 
+chrome.action.onClicked.addListener((tab) => {
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id }, 
+        files: ["content.js"]
+    }).catch(error => console.error("Script injection failed:", error)); 
+}); 
+
 //listen for messages from content script to show the context menu
 // chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 //     console.log('Received message in background: ', message);

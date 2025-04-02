@@ -3,9 +3,22 @@ console.log("First line of content.js");
 function postData(input) {
     $.ajax({
         type: "POST",
-        url: "../scraper/LI/scrape_lipost.py",
-        data: { param: input }, 
-        success: callbackfn
+       // url: "../scraper/LI/scrape_lipost.py",
+        url: "http://localhost:8080/run-python", // sending to express server
+        contentType: 'application/json', 
+        data: JSON.stringify({
+            username: "username", 
+            password: "password",
+            postUrl: input
+        }),
+      //  data: { param: input }, 
+        //success: callbackfn
+        success: function(response) {
+            console.log("AJAX Success: ", response);
+        },
+        error: function(xhr, status, error) {
+            console.log("AJAX Error: ", status, error);
+        }
     });
 }
 
