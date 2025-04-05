@@ -27,7 +27,6 @@
         "128": "icons/placeholder.png"
     }, 
     "action": {
-        "default_popup": "popup.html", 
         "default_icon": {
             "128": "icons/128.png"
         }, 

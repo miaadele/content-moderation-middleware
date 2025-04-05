@@ -1,5 +1,5 @@
 console.log("First line of content.js"); 
-
+/*
 function postData(input) {
     $.ajax({
         type: "POST",
@@ -21,7 +21,7 @@ function postData(input) {
         }
     });
 }
-
+*/
 
 function callbackfn(response) {
     console.log(response);
