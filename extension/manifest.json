@@ -19,13 +19,15 @@
     "content_scripts": [
         {
             "matches": ["https://www.linkedin.com/*"], 
-            "js": ["content.js"]
+            "js": ["jquery.min.js", "content.js"], 
+            "run_at": "document_idle"
         }
     ], 
     "icons": {
         "128": "icons/placeholder.png"
     }, 
     "action": {
+        "default_popup": "popup.html", 
         "default_icon": {
             "128": "icons/128.png"
         }, 

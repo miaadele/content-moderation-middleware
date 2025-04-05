@@ -1,10 +1,14 @@
+// LINKEDIN API not working bc of automated script 
+
+require('dotenv').config(); 
+
 const express = require('express');
 const { exec } = require('child_process');
 const connectDB = require('./config/db'); 
 const cors = require("cors"); 
 const bodyParser = require("body-parser"); 
 const app = express();
-const port = 3000;
+const port = 8080;
 
 app.use(cors()); 
 app.use(bodyParser.json()); // to parse json
