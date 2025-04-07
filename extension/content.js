@@ -23,7 +23,6 @@ function postData(input) {
 }
 */
 
-<<<<<<< HEAD
 // helper fn: Get the visible text of a LinkedIn post from the DOM
 function extractPostTextFromUrl(postUrl) {
     const posts = document.querySelectorAll('div.feed-shared-update-v2');
@@ -75,8 +74,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     }
 });
 
-=======
->>>>>>> parent of 9cac1a9 (Merge branch 'js_fns_scraping' into crypto)
 function callbackfn(response) {
     console.log(response);
 }
