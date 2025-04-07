@@ -10,24 +10,26 @@ import json
 import getpass
 import re
 from datetime import datetime, timezone
-import pymongo
-import hashlib
-import base64  # to encode bytes into 64 so json doesn't scream
-from bson import ObjectId  # type error fix
+
+# import pymongo
+# import hashlib
+# import base64  # to encode bytes into 64 so json doesn't scream
+# from bson import ObjectId  # type error fix
 import sys
 
 # import subprocess
 import os
-import rsa
+
+# import rsa
 
 # arguments from node
-if len(sys.argv) != 4:  # first one is process
-    print("usage wrong")
+""" if len(sys.argv) != 4:  # first one is process
+    print("usage wrongL python scrape_lipost.py <username> <password> <post_url>")
     sys.exit(1)
 
 username = sys.argv[1]
 password = sys.argv[2]
-post_url = sys.argv[3]
+post_url = sys.argv[3] """
 
 # mongodb connect
 dotenv_path = os.path.join(
@@ -43,15 +45,15 @@ collection = db["posts"]
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Get script directory
 
 # generate rsa keys: 2048-bit
-(public_key, private_key) = rsa.newkeys(2048)
+# (public_key, private_key) = rsa.newkeys(2048)
 
 
-def encode_base64(data):
-    return base64.b64encode(data).decode("utf-8")
+# def encode_base64(data):
+#    return base64.b64encode(data).decode("utf-8")
 
 
 # function to convert mongodb objectid to string
-def objectid_to_str(obj):
+""" def objectid_to_str(obj):
     if isinstance(obj, ObjectId):
         return str(obj)
     elif isinstance(obj, dict):
@@ -59,14 +61,14 @@ def objectid_to_str(obj):
     elif isinstance(obj, list):
         return [objectid_to_str(item) for item in obj]
     return obj
-
+ """
 
 # hash posts using sha-256
-def compute_sha256(text):
+""" def compute_sha256(text):
     # oh how i love you hashlib
     sha256_hash = hashlib.sha256()  # create
     sha256_hash.update(text.encode("utf-8"))
-    return sha256_hash.hexdigest()
+    return sha256_hash.hexdigest() """
 
 
 # hashing_path = os.path.join(BASE_DIR, "rsa\hashing.exe")
@@ -86,10 +88,10 @@ def compute_sha256(text):
 
 
 # function to encrypt hashed text using RSA, please work
-def rsa_encrypt(public_key, text):
+""" def rsa_encrypt(public_key, text):
     encrypted_data = rsa.encrypt(text.encode("utf-8"), public_key)
     return encrypted_data
-
+ """
 
 # extension path
 # extension_path = "chrome://extensions/?id=hfkhhbiomgmepddmfgcogiljmkndeojf"
@@ -110,13 +112,22 @@ browser = webdriver.Chrome(options=chrome_options)
 browser.get("https://www.linkedin.com/login")
 
 # login and navigate to specific post
-browser.find_element(By.ID, "username").send_keys(username)
+""" browser.find_element(By.ID, "username").send_keys(username)
 browser.find_element(By.ID, "password").send_keys(password)
 browser.find_element(By.ID, "password").submit()
 browser.get(post_url)
-post_page = browser.page_source
+post_page = browser.page_source """
+post_page = """
+<html>
+    <body>
+        <div class="feed-shared-inline-show-more-text">This is a dummy post text</div>
+        <span class="social-details-social-counts__reactions-count">123 likes</span>
+    </body>
+</html> """
 soup = bs(post_page, "html.parser")
 
+# dummy post url
+post_url = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0?utm_source=share&utm_medium=member_desktop&rcm=ACoAADkReGUBcjRPXHQJA6NNaf79l8YhU5_dH30;"
 # a 19-digit number is found in the LinkedIn URL. This is the post ID.
 idRegex = re.compile(r"\d{19}")
 mo = idRegex.search(post_url)
@@ -179,26 +190,27 @@ except Exception as e:
     metadata["post_date"] = "could not be calculated"
 
 # hash the post_text
-hashed_post_text = compute_sha256(metadata["post_text"])
+""" hashed_post_text = compute_sha256(metadata["post_text"])
 metadata["post_text_hash"] = hashed_post_text
 
 # encrypt hashed post using rsa
 encrypted_post_text = rsa_encrypt(public_key, hashed_post_text)
 encoded_encrypted_post_text = encode_base64(encrypted_post_text)
-metadata["post_text_encrypted"] = encoded_encrypted_post_text
+metadata["post_text_encrypted"] = encoded_encrypted_post_text """
 
 # convertion happening here
-metadata = objectid_to_str(
+""" metadata = objectid_to_str(
     metadata
 )  # {key: objectid_to_str(value) for key, value in metadata.items()}
+"""
 
 # save metadata to mongodb
 collection.insert_one(metadata)
 print("Post metadata saved to MongoDB.")
 
 # Save metadata to JSON file
-# post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
-# json_filename = f"linkedin_post_{post_id}.json"
+post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
+json_filename = f"linkedin_post_{post_id}.json"
 
 
 # remove characters invalid in windows
@@ -206,12 +218,12 @@ def clean_filename(filename):
     return re.sub(r'[<>:"/\\|?*]', "_", filename)
 
 
-# json_filename = clean_filename(json_filename)
+json_filename = clean_filename(json_filename)
 
-# with open(json_filename, "w", encoding="utf-8") as json_file:
-#    json.dump(metadata, json_file, indent=4, ensure_ascii=False)
+with open(json_filename, "w", encoding="utf-8") as json_file:
+    json.dump(metadata, json_file, indent=4, ensure_ascii=False)
 
-# print(f"Post metadata saved to {json_filename}")
+print(f"Post metadata saved to {json_filename}")
 
 # Close browser
 browser.quit()

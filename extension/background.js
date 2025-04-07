@@ -129,6 +129,12 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         // exec('../scraper/LI/test.py', (error, stdout, stderr) => {
         //     console.log(stdout);
         // });
+        const dummyPostUrl = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0"; 
+        
+        chrome.tabs.sendMessage(tab.id, {
+            action: "verify-post", 
+            postUrl: info.pageUrl
+        })
 
     }//end if
     else if(info.menuItemId === 'metadata') {

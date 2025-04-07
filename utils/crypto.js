@@ -7,14 +7,14 @@ const fs = require('fs');
 const path = require('path'); 
 
 const keyDir = path.join(__dirname, 'keys'); 
-const publicKeyPath = path.join(keysDir, 'public.pem'); 
-const privateKeyPath = path.join(keysDir, 'private.pem'); 
+const publicKeyPath = path.join(keyDir, 'public.pem'); 
+const privateKeyPath = path.join(keyDir, 'private.pem'); 
 
 // generate RSA key pair if not present 
 function yesKeys() {
     if (!fs.existsSync(publicKeyPath) || !fs.existsSync(privateKeyPath)) {
         console.log('RSA key pair not found. Generating new keys...'); 
-        if (!fs.existsSync(keysDir)) fs.mkdirSync(keysDir); 
+        if (!fs.existsSync(keyDir)) fs.mkdirSync(keyDir); 
 
         const key = new NodeRSA({ b: 2048 }); 
         const publicKey = key.exportKey('public'); 
@@ -25,7 +25,7 @@ function yesKeys() {
     }
 }
 
-ensureKeys(); 
+yesKeys(); 
 
 const publicKey = fs.readFileSync(publicKeyPath, 'utf8'); 
 const privateKey = fs.readFileSync(privateKeyPath, 'utf8'); 
