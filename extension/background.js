@@ -1,6 +1,5 @@
-chrome.runtime.onStartup.addListener( () => {
-    console.log('onStartup()');
-})
+//Service worker
+console.log("background service worker script loaded");
 
 //service worker
 console.log("background service worker script loaded");
@@ -14,6 +13,7 @@ chrome.contextMenus.create({
     title: 'Ascertion',
     type: "normal",
     contexts: ['all'],
+    //visible: false //initially hidden
 }, function() {
     if (chrome.runtime.lastError) {
         console.error("Error creating context menu: ", chrome.runtime.lastError);
@@ -21,8 +21,6 @@ chrome.contextMenus.create({
         console.log("Parent menu created successfully");
     }
 });
-
-//Child menu creation
 chrome.contextMenus.create({
     id: 'ca',
     title: 'Content Authorities',
@@ -54,28 +52,8 @@ chrome.contextMenus.create({
     parentId: "ca"
 });
 
-chrome.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error) => console.error(error));
-
-chrome.tabs.onUpdated.addListener(async(tabId, info, tab) => {
-    if(!tab.url) return;
-    const url = new URL(tab.url);
-    if(url.origin === 'https://www.linkedin.com/*') {
-        await chrome.sidePanel.setOptions({
-            tabId,
-            path: 'sidepanel.html',
-            enabled: true
-        });
-    } else {
-        await chrome.sidePanel.setOptions({
-            tabId,
-            enabled: false
-        });
-    }
-});
-
-chrome.runtime.onInstalled.addListener((message) => {
+/*
+chrome.runtime.onInstalled.addListener((message, sender, sendResponse) => {
     console.log("service worker installed");
     if(message.action === 'showContextMenu') {
         console.log('Action from content script received');
@@ -125,10 +103,11 @@ chrome.runtime.onInstalled.addListener((message) => {
             type: "radio",
             parentId: "ca"
         });
-    }
+    }//end if
 });
+*/
 
-const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
+/*const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
 if(chrome && chrome.runtime) {
     //create a runtime.Port object that's connected to native messaging host
     var port = chrome.runtime.connectNative('com.google.drive.nativeproxy');
@@ -139,7 +118,7 @@ if(chrome && chrome.runtime) {
         console.log('Disconnected from native port')
     }) ;
     port.postMessage({text: 'Hello, this is a message from the native port.'});
-}
+}   */
 
 //handle contextMenu clicks
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
@@ -158,40 +137,30 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         })
 
     }//end if
-    if(info.menuItemId === 'metadata') {
+    else if(info.menuItemId === 'metadata') {
         console.log('View metadata');
-        chrome.sidePanel.open({ windowId: tab.windowId });
     }
 });
 
-chrome.action.onClicked.addListener((tab) => {
+/*chrome.action.onClicked.addListener((tab) => {
     chrome.scripting.executeScript({
         target: { tabId: tab.id }, 
         files: ["content.js"]
     }).catch(error => console.error("Script injection failed:", error)); 
-});
+}); */
 
-chrome.runtime.onMessage.addListener(function(message, sender) {
-    console.log('Received message in background: ', message);
-    (async() => {
-        if(message.action === 'showContextMenu') {
-            chrome.contextMenus.update('ContextMenu', {visible: true});
-        } 
-        if(message.type === 'open_side_panel') {
-            await chrome.sidePanel.open({ tabId: sender.tab.id });
-            await chrome.sidePanel.setOptions({
-                tabId: sender.tab.id,
-                path: 'sidepanel.html',
-                enabled: true
-            });
-        }
-    })();
-});
+//listen for messages from content script to show the context menu
+// chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+//     console.log('Received message in background: ', message);
+//     if(message.action === 'showContextMenu') {
+//         chrome.contextMenus.update('ContextMenu', {visible: true});
+//     }
+// });
 
-chrome.browserAction.onClicked.addListener(function() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {command: "click"}, function(response) {
-            console.log(response.result);
-        });
-    });
-});
+// chrome.browserAction.onClicked.addListener(function() {
+//     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+//         chrome.tabs.sendMessage(tabs[0].id, {command: "click"}, function(response) {
+//             console.log(response.result);
+//         });
+//     });
+// });

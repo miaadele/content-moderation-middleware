@@ -9,8 +9,11 @@
         "scripting", 
         "storage",
         "contextMenus"
+<<<<<<< HEAD
         "sidePanel",
         "tabs"
+=======
+>>>>>>> parent of 9cac1a9 (Merge branch 'js_fns_scraping' into crypto)
     ], 
     "host_permissions": [
         "https://*/"
@@ -21,7 +24,11 @@
     "content_scripts": [
         {
             "matches": ["https://www.linkedin.com/*"], 
+<<<<<<< HEAD
             "js": ["forge.min.js", "crypto-client.js", "content.js"], 
+=======
+            "js": ["jquery.min.js", "content.js"], 
+>>>>>>> parent of 9cac1a9 (Merge branch 'js_fns_scraping' into crypto)
             "run_at": "document_idle"
         }
     ], 
@@ -33,8 +40,5 @@
             "128": "icons/128.png"
         }, 
         "default_title": "Click to activate"
-    },
-    "side_panel": {
-        "default_path": "sidepanel.html"
     }
 }
