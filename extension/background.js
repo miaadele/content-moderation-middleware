@@ -128,7 +128,7 @@ chrome.runtime.onInstalled.addListener((message, sender, sendResponse) => {
     }//end if
 });
 
-const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
+/*const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
 if(chrome && chrome.runtime) {
     //create a runtime.Port object that's connected to native messaging host
     var port = chrome.runtime.connectNative('com.google.drive.nativeproxy');
@@ -139,7 +139,7 @@ if(chrome && chrome.runtime) {
         console.log('Disconnected from native port')
     }) ;
     port.postMessage({text: 'Hello, this is a message from the native port.'});
-}   
+}   */
 
 //handle contextMenu clicks
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
@@ -158,12 +158,12 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     }
 });
 
-chrome.action.onClicked.addListener((tab) => {
+/*chrome.action.onClicked.addListener((tab) => {
     chrome.scripting.executeScript({
         target: { tabId: tab.id }, 
         files: ["content.js"]
     }).catch(error => console.error("Script injection failed:", error)); 
-}); 
+}); */
 
 chrome.runtime.onMessage.addListener(function(message, sender) {
     console.log('Received message in background: ', message);
