@@ -1,16 +1,5 @@
 console.log("First line of content.js"); 
 
-const button = new DOMParser().parseFromString(
-    '<button>View metadata</button>',
-    'text/html'
-).body.firstElementChild;
-
-button.addEventListener('click', function (){
-    chrome.runtime.sendMessage({ type: 'open_side_panel' });
-});
-
-document.body.append(button);
-
 const observer1 = new MutationObserver(() => {
     var posts = document.querySelectorAll('.fie-impression-container'); // LinkedIn post container
     // Use MutationObserver to detect when new posts are added dynamically

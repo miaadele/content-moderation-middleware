@@ -12,14 +12,6 @@
         "sidePanel",
         "tabs"
     ], 
-    "commands": {
-        "_execute_action": {
-            "suggested_key": {
-                "default": "Ctrl+B",
-                "mac": "Command+B"
-            }
-        }
-    },
     "host_permissions": [
         "https://*/"
     ], 

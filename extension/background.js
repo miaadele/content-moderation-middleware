@@ -61,7 +61,7 @@ chrome.sidePanel
 chrome.tabs.onUpdated.addListener(async(tabId, info, tab) => {
     if(!tab.url) return;
     const url = new URL(tab.url);
-    if(url.origin === 'https.//www.google.com') {
+    if(url.origin === 'https://www.linkedin.com/*') {
         await chrome.sidePanel.setOptions({
             tabId,
             path: 'sidepanel.html',
@@ -75,7 +75,7 @@ chrome.tabs.onUpdated.addListener(async(tabId, info, tab) => {
     }
 });
 
-chrome.runtime.onInstalled.addListener((message, sender, sendResponse) => {
+chrome.runtime.onInstalled.addListener((message) => {
     console.log("service worker installed");
     if(message.action === 'showContextMenu') {
         console.log('Action from content script received');
@@ -125,10 +125,10 @@ chrome.runtime.onInstalled.addListener((message, sender, sendResponse) => {
             type: "radio",
             parentId: "ca"
         });
-    }//end if
+    }
 });
 
-/*const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
+const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
 if(chrome && chrome.runtime) {
     //create a runtime.Port object that's connected to native messaging host
     var port = chrome.runtime.connectNative('com.google.drive.nativeproxy');
@@ -139,18 +139,13 @@ if(chrome && chrome.runtime) {
         console.log('Disconnected from native port')
     }) ;
     port.postMessage({text: 'Hello, this is a message from the native port.'});
-}   */
+}
 
 //handle contextMenu clicks
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
     if(info.menuItemId === 'verify') {
         console.log('Verify post');
-
-        // const { exec } = require('child_process');
-        // exec('../scraper/LI/test.py', (error, stdout, stderr) => {
-        //     console.log(stdout);
-        // });
-
+        //call hashing scripts
     }//end if
     if(info.menuItemId === 'metadata') {
         console.log('View metadata');
@@ -158,12 +153,12 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     }
 });
 
-/*chrome.action.onClicked.addListener((tab) => {
+chrome.action.onClicked.addListener((tab) => {
     chrome.scripting.executeScript({
         target: { tabId: tab.id }, 
         files: ["content.js"]
     }).catch(error => console.error("Script injection failed:", error)); 
-}); */
+});
 
 chrome.runtime.onMessage.addListener(function(message, sender) {
     console.log('Received message in background: ', message);
