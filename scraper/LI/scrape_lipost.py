@@ -11,7 +11,8 @@ import getpass
 import re
 from datetime import datetime, timezone
 
-# import pymongo
+import pymongo
+
 # import hashlib
 # import base64  # to encode bytes into 64 so json doesn't scream
 # from bson import ObjectId  # type error fix
@@ -30,6 +31,7 @@ import os
 username = sys.argv[1]
 password = sys.argv[2]
 post_url = sys.argv[3] """
+post_url = sys.argv[1]
 
 # mongodb connect
 dotenv_path = os.path.join(
@@ -108,8 +110,8 @@ chrome_options.add_argument("--no-sandbox")
 
 # open LI page and sign in
 # driver_path = install()
-browser = webdriver.Chrome(options=chrome_options)
-browser.get("https://www.linkedin.com/login")
+# browser = webdriver.Chrome(options=chrome_options)
+# browser.get("https://www.linkedin.com/login")
 
 # login and navigate to specific post
 """ browser.find_element(By.ID, "username").send_keys(username)
@@ -127,7 +129,7 @@ post_page = """
 soup = bs(post_page, "html.parser")
 
 # dummy post url
-post_url = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0?utm_source=share&utm_medium=member_desktop&rcm=ACoAADkReGUBcjRPXHQJA6NNaf79l8YhU5_dH30;"
+# post_url = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0?utm_source=share&utm_medium=member_desktop&rcm=ACoAADkReGUBcjRPXHQJA6NNaf79l8YhU5_dH30;"
 # a 19-digit number is found in the LinkedIn URL. This is the post ID.
 idRegex = re.compile(r"\d{19}")
 mo = idRegex.search(post_url)

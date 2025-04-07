@@ -130,11 +130,21 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         //     console.log(stdout);
         // });
         const dummyPostUrl = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0"; 
-        
-        chrome.tabs.sendMessage(tab.id, {
-            action: "verify-post", 
-            postUrl: info.pageUrl
-        })
+
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js']
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.error("Script injection failed:", chrome.runtime.lastError.message);
+                return;
+            }
+
+            chrome.tabs.sendMessage(tab.id, {
+                action: "verify-post", 
+                postUrl: info.pageUrl
+            }); 
+        }); 
 
     }//end if
     else if(info.menuItemId === 'metadata') {
