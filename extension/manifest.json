@@ -8,7 +8,7 @@
         "activeTab", 
         "scripting", 
         "storage",
-        "contextMenus",
+        "contextMenus"
         "sidePanel",
         "tabs"
     ], 
@@ -21,7 +21,7 @@
     "content_scripts": [
         {
             "matches": ["https://www.linkedin.com/*"], 
-            "js": ["content.js"], 
+            "js": ["forge.min.js", "crypto-client.js", "content.js"], 
             "run_at": "document_idle"
         }
     ], 
