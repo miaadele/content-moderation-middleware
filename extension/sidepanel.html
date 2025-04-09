@@ -1,9 +1,37 @@
 <!DOCTYPE html>
+
+<script>
+require('dotenv').config();
+const express = require('express');
+const connectDB = require('./config/db');
+const app = express();
+const ejs = require('ejs');
+
+connectDB();
+
+//app.set('view engine', 'ejs');
+
+mongoose.connect
+
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb+srv://MiaLassiter14:6Oq7lfluTZVzaWCY@sd-database.qusa9.mongodb.net/";
+MongoClient.connect(url, function(err, db) {
+    if(err) throw err;
+    var dbo = db.db("mydb");
+    var query = { unique_post_id:7300720237052665856 };
+    dbo.collection("Documents").find(query).toArray(function(err, result){
+        if(err) throw err;
+        console.log(result);
+        db.close();
+    });
+});
+</script>
+
 <html>
     <head>
         <title>Ascertion Sidepanel</title>
     </head>
     <body>
-        <h1>Ascertion</h1>
+        <h1>Content Metadata</h1>
     </body>
 </html>

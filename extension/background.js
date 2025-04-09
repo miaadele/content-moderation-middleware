@@ -128,18 +128,18 @@ chrome.contextMenus.create({
 //     }
 // });
 
-const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
-if(chrome && chrome.runtime) {
-    //create a runtime.Port object that's connected to native messaging host
-    var port = chrome.runtime.connectNative('com.google.drive.nativeproxy');
-    port.onMessage.addListener(function(msg) {
-        console.log('Received ' + msg);
-    });
-    port.onDisconnect.addListener(function() {
-        console.log('Disconnected from native port')
-    }) ;
-    port.postMessage({text: 'Hello, this is a message from the native port.'});
-}
+// const extensionId = 'lmjegmlicamnimmfhcmpkclmigmmcbeh';
+// if(chrome && chrome.runtime) {
+//     //create a runtime.Port object that's connected to native messaging host
+//     var port = chrome.runtime.connectNative('com.google.drive.nativeproxy');
+//     port.onMessage.addListener(function(msg) {
+//         console.log('Received ' + msg);
+//     });
+//     port.onDisconnect.addListener(function() {
+//         console.log('Disconnected from native port')
+//     }) ;
+//     port.postMessage({text: 'Hello, this is a message from the native port.'});
+// }
 
 //handle contextMenu clicks
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
