@@ -11,18 +11,21 @@ const observer1 = new MutationObserver(() => {
     });
 });
     
-observer1.observe(document.body, { childList: true, subtree: true });
+//observer1.observe(document.body, { childList: true, subtree: true });
+observer1.observe(document.body.child[1]);
+
+// console.log(document.body.children[1]);
 
 //Use MutationObserver listens for dynamic changes to the DOM
-const observer2 = new MutationObserver(() => {
-    const links = document.getElementsByClassName("artdeco-toast-item__cta"); //links is an HTMLCollection
-    console.log(links);
-    var linksArray = new Map();
-    linksArray.set("link", links[0].href);
-    chrome.runtime.sendMessage({
-        type: 'elements',
-        data: linksArray
-    });
-});
+// const observer2 = new MutationObserver(() => {
+//     const links = document.getElementsByClassName("artdeco-toast-item__cta"); //links is an HTMLCollection
+//     console.log(links);
+//     var linksArray = new Map();
+//     linksArray.set("link", links[0].href);
+//     chrome.runtime.sendMessage({
+//         type: 'elements',
+//         data: linksArray
+//     });
+// });
 
-observer2.observe(document.body, { childList: true, subtree: true });
+// observer2.observe(document.body, { childList: true, subtree: true });
