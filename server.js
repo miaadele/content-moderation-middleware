@@ -51,6 +51,25 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`); 
 }); 
 
+// to run python file
+app.post("/run-python", (req, res) => {
+    const { postUrl, postText } = req.body; 
+
+    if ( !postUrl || !postText ) {
+        return res.status(400).send("Missing required fields."); 
+    }
+
+    const { exec } = require("child_process");
+    exec(`python scraper/LI/scrape_lipost.py "${postUrl}" "${postText}"`, (err, stdout, stderr) => {
+        if (err) {
+            console.error(`exec error: ${err}`);
+            return res.status(500).send("Error running Python script");
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+        res.send("Python script executed successfully");
+    });
+});
 /*// Connect to the database
 connectDB(); 
 

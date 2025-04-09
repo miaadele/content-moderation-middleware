@@ -32,13 +32,13 @@ if (!window.hasRunAscertion) {
 
             if (!postText) {
                 console.error("Post content is empty.");
-                window.hasRunAscertion = false; 
+           //     window.hasRunAscertion = false; 
                 return;
             }
 
             console.log("Extracted post text:", postText);
 
-            fetch("http://localhost:3000/run-python", {
+            fetch("http://localhost:8080/run-python", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
