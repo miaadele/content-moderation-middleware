@@ -15,16 +15,14 @@ document.getElementById("verify").addEventListener("click", () => {
 }); 
 
 document.getElementById("submit").addEventListener("click", () => {
-    const username = document.getElementById("username").value.trim(); 
-    const password = document.getElementById("password").value.trim(); 
+   /* const username = document.getElementById("username").value.trim(); 
+    const password = document.getElementById("password").value.trim(); */
     const postUrl = document.getElementById("postUrl").value.trim(); 
 
-    if (!username || !password || !postUrl) {
-        alert("Fill in all fields to continue!"); 
+    if (!postUrl) {
+        alert("Fill in the post URL to continue!"); 
         return; 
     }
-
-    alert("verification"); 
 
     // send data over
     fetch("http://localhost:3000/run-python", {
@@ -32,7 +30,7 @@ document.getElementById("submit").addEventListener("click", () => {
         headers: {
             "Content-Type": "application/json"
         }, 
-        body: JSON.stringify({ username, password, postUrl })
+        body: JSON.stringify({ postUrl })
     })
     .then(response => response.text())
     .then(data => {
