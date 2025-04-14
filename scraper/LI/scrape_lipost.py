@@ -96,24 +96,12 @@ def rsa_encrypt(public_key, text):
     encrypted_data = rsa.encrypt(text.encode("utf-8"), public_key)
     return encrypted_data
 
-
-# extension path
 # extension_path = "chrome://extensions/?id=hfkhhbiomgmepddmfgcogiljmkndeojf"
 # initialize Chrome options
 chrome_options = Options()
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 # chrome_options.add_argument(Extension(extension_path).load())
-
-# prompt user for credentials and post URL
-# username = input("Enter LinkedIn username: ")
-# password = getpass.getpass("Enter LinkedIn password: ")
-# post_url = input("Enter the URL of the LinkedIn post: ").strip()
-
-# open LI page and sign in
-# driver_path = install()
-# browser = webdriver.Chrome(options=chrome_options)
-# browser.get("https://www.linkedin.com/login")
 
 # login and navigate to specific post
 """ browser.find_element(By.ID, "username").send_keys(username)
