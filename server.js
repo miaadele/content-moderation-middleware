@@ -51,16 +51,43 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`); 
 }); 
 
+const { spawn } = require('child_process');
+
 // to run python file
 app.post("/run-python", (req, res) => {
-    const { postUrl, postText } = req.body; 
+    const { postUrl, postText, likes } = req.body; 
 
-    if ( !postUrl || !postText ) {
+    if ( !postUrl || !postText || !likes) {
         return res.status(400).send("Missing required fields."); 
     }
 
-    const { exec } = require("child_process");
-    exec(`python scraper/LI/scrape_lipost.py "${postUrl}" "${postText}"`, (err, stdout, stderr) => {
+    //const { exec } = require("child_process");
+    const pythonProcess = spawn('python', ['scraper/LI/scrape_lipost.py']); 
+
+    const jsonData = JSON.stringify({
+        postUrl, 
+        postText, 
+        likesCount: likes 
+    }); 
+
+    pythonProcess.stdin.write(jsonData); 
+    pythonProcess.stdin.end(); 
+
+    pythonProcess.stdout.on('data', (data) => {
+        console.log('stdout: ${data}'); 
+    }); 
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        console.log(`python script exited with code ${code}`);
+        res.send("python script executed successfully");
+    });
+
+    /*console.log(`Post URL: ${postUrl}, Post Text: ${postText}, Likes: ${likes}`);
+    exec(`python scraper/LI/scrape_lipost.py "${postUrl}" "${postText}" "${likes}"`, (err, stdout, stderr) => {
         if (err) {
             console.error(`exec error: ${err}`);
             return res.status(500).send("Error running Python script");
@@ -68,7 +95,8 @@ app.post("/run-python", (req, res) => {
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
         res.send("Python script executed successfully");
-    });
+    });*/
+
 });
 /*// Connect to the database
 connectDB(); 

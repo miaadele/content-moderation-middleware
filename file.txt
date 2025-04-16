@@ -1,0 +1,2 @@
+https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0/?utm_source=share&utm_medium=member_desktop&rcm=ACoAADkReGUBcjRPXHQJA6NNaf79l8YhU5_dH30
+printing out id: <class 'str'>

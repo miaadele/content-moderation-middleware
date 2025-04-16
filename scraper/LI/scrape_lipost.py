@@ -24,6 +24,9 @@ import os
 
 import rsa
 
+# for passing arguments
+import json
+
 # arguments from node
 """ if len(sys.argv) != 4:  # first one is process
     print("usage wrongL python scrape_lipost.py <username> <password> <post_url>")
@@ -32,8 +35,16 @@ import rsa
 username = sys.argv[1]
 password = sys.argv[2]
 post_url = sys.argv[3] """
-postText = sys.argv[2]
-post_url = sys.argv[1]
+# likes = sys.argv[3]
+# postText = sys.argv[2]
+# post_url = sys.argv[1]
+
+# read from stdin aka POST body
+input_data = json.load(sys.stdin)
+
+post_url = input_data.get("postUrl", "")
+postText = input_data.get("postText", "")
+likes = input_data.get("likesCount", "")
 
 # mongodb connect
 dotenv_path = os.path.join(
@@ -65,6 +76,18 @@ def objectid_to_str(obj):
     elif isinstance(obj, list):
         return [objectid_to_str(item) for item in obj]
     return obj
+
+
+def clean_text(text):
+    try:
+        # Try encoding to UTF-8 and decoding to handle surrogate pairs
+        return text.encode("utf-8", "ignore").decode("utf-8", "ignore")
+    except UnicodeEncodeError as e:
+        print(f"Error cleaning text: {e}")
+        return text  # Return original text in case of an encoding issue
+
+
+postText = clean_text(postText)  # utf encoding error otherwise
 
 
 # hash posts using sha-256
@@ -100,9 +123,9 @@ def rsa_encrypt(public_key, text):
 # extension path
 # extension_path = "chrome://extensions/?id=hfkhhbiomgmepddmfgcogiljmkndeojf"
 # initialize Chrome options
-chrome_options = Options()
-chrome_options.add_argument("--disable-gpu")
-chrome_options.add_argument("--no-sandbox")
+# chrome_options = Options()
+# chrome_options.add_argument("--disable-gpu")
+# chrome_options.add_argument("--no-sandbox")
 # chrome_options.add_argument(Extension(extension_path).load())
 
 # prompt user for credentials and post URL
@@ -121,32 +144,32 @@ browser.find_element(By.ID, "password").send_keys(password)
 browser.find_element(By.ID, "password").submit()
 browser.get(post_url)
 post_page = browser.page_source """
-post_page = """
-# <html>
-#    <body>
-#        <div class="feed-shared-inline-show-more-text">This is a dummy post text</div>
-#        <span class="social-details-social-counts__reactions-count">123 likes</span>
-#    </body>
-# </html> """
-soup = bs(post_page, "html.parser")
+# browser.get(post_url)
+# post_page = pageSource
+# soup = bs(post_page, "html.parser")
 
 # a 19-digit number is found in the LinkedIn URL. This is the post ID.
 idRegex = re.compile(r"\d{19}")
+# print("printing idregex", idRegex.string, file=f)
 mo = idRegex.search(post_url)
 if mo:
-    post_id = mo.group()
-    print("Unique post ID: ", post_id)
+    id = mo.group()
+    print("Unique post ID: ", id)
 else:
     print("No unique ID found in URL")
+
+
+# print()
 
 # decode id to determine the timestamp
 # convert id into binary and extract the first 41 bits
 # convert the bits back into decimal
-""" print("this is the id: ", id)
+# print("this is the id: ", id)
 intid = int(id)
-timestampbin = bin = "{0:b}".format(id)
+# timestampbin = bin = "{0:b}".format(id)
+timestampbin = bin = format(intid, "b")
 timestamp = timestampbin[:41]
-timestamp = int(timestamp, 2) / 1000 """
+timestamp = int(timestamp, 2) / 1000
 
 
 # post timestamp conversion code is from Ollie-Boyd's github
@@ -173,27 +196,30 @@ metadata = {}
 # metadata["unique_post_id"] = post_id
 
 try:
-    metadata["post_text"] = postText  # soup.find(
-    # "div", {"class": "feed-shared-inline-show-more-text"}
+    metadata["post_text"] = postText
+    # soup.find(
+    #    "div", {"class": "feed-shared-inline-show-more-text"}
     # ).text.strip()
 except:
     metadata["post_text"] = "Not found"
 
 try:
-    metadata["likes"] = soup.find(
-        "span", {"class": "social-details-social-counts__reactions-count"}
-    ).text.strip()
+    metadata["likes"] = likes
+    # soup.find(
+    # "span", {"class": "social-details-social-counts__reactions-count"}
+    # ).text.strip()
+
 except:
     metadata["likes"] = "0"
 
-""" try:
+try:
     metadata["post_date"] = LIpostTimestampExtractor.format_timestamp(timestamp)
 except Exception as e:
     print("Timestamp formatting: ", e)
-    metadata["post_date"] = "could not be calculated" """
+    metadata["post_date"] = "could not be calculated"
 
 # hash the post_text
-hashed_post_text = compute_sha256(postText)
+hashed_post_text = compute_sha256(clean_text(postText))
 metadata["post_text_hash"] = hashed_post_text
 
 # encrypt hashed post using rsa
