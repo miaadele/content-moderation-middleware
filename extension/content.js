@@ -2,19 +2,27 @@
 if (!window.hasRunAscertion) {
     window.hasRunAscertion = true; 
 
-    console.log("First line of content.js"); 
-
     let lastRightClickedPost = null;
+    let likesCount = "0"; 
+
+    console.log("First line of content.js"); 
 
     document.addEventListener("contextmenu", (event) => {
         // traverse up the DOM to find the closest post container
-        const post = event.target.closest(".update-components-text");
+        //const post = event.target.closest(".update-components-text");
+        const post = event.target.closest(".update-components-text"); 
+        //const post = event.target.closest('[data-urn^="urn:li:activity:"]');
+
         if (post) {
             lastRightClickedPost = post;
             console.log("Right-clicked post found!");
+
+           // const likesof = postL.querySelector('.social-details-social-counts__reactions-count'); 
+           // const likesCount = likesof ? likesof.innerText : "0"; 
+            //console.log(likesCount)
         } else {
             lastRightClickedPost = null;
-            console.log("No post found"); 
+            console.log("No post container found"); 
         }
     });
 
@@ -27,9 +35,9 @@ if (!window.hasRunAscertion) {
                 window.hasRunAscertion = false; 
                 return;
             }
-
+            const likesElem = document.querySelector(".social-details-social-counts__reactions-count");
+            const likesCount = likesElem.innerText ? likesElem.innerText : "0"; 
             const postText = lastRightClickedPost.innerText;
-
             if (!postText) {
                 console.error("Post content is empty.");
            //     window.hasRunAscertion = false; 
@@ -37,6 +45,8 @@ if (!window.hasRunAscertion) {
             }
 
             console.log("Extracted post text:", postText);
+            console.log("number of likes: ", likesCount);
+            //console.log("Extracted page source:", pageSource); 
 
             fetch("http://localhost:8080/run-python", {
                 method: "POST",
@@ -45,7 +55,8 @@ if (!window.hasRunAscertion) {
                 },
                 body: JSON.stringify({
                     postUrl: request.postUrl,
-                    postText: postText
+                    postText: postText,
+                    likes: likesCount
                 })
             })
             .then(response => response.text())
@@ -86,7 +97,7 @@ if (!window.hasRunAscertion) {
     //postData('data');
 
     // Use MutationObserver to detect when new posts are added dynamically
-    const observer1 = new MutationObserver(() => {
+    /*const observer1 = new MutationObserver(() => {
         var posts = document.querySelectorAll('.fie-impression-container'); // LinkedIn post container
         
         // posts.forEach(post => {
@@ -95,9 +106,9 @@ if (!window.hasRunAscertion) {
         //     chrome.runtime.sendMessage({ action: 'showContextMenu' }); // Send message to background script to show context menu
         //     });
         // });
-    });
+    });*/
         
-    observer1.observe(document.body, { childList: true, subtree: true });
+    //observer1.observe(document.body, { childList: true, subtree: true });
 
     //Use MutationObserver listens for dynamic changes to the DOM
     /*
