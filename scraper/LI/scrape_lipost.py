@@ -37,6 +37,10 @@ from cryptography.hazmat.backends import default_backend
 # for passing arguments
 import json
 
+sys.stdout.reconfigure(
+    encoding="utf-8"
+)  # to make sure emojis and special characters don't get wonky
+
 # arguments from node
 """ if len(sys.argv) != 4:  # first one is process
     print("usage wrongL python scrape_lipost.py <username> <password> <post_url>")
@@ -226,6 +230,7 @@ class LIpostTimestampExtractor:
 
 metadata = {}
 # metadata["unique_post_id"] = post_id
+metadata["unique_post_id"] = id
 
 try:
     metadata["post_text"] = postText
@@ -254,7 +259,7 @@ except Exception as e:
 hashed_post_text = compute_sha256(clean_text(postText))
 metadata["post_text_hash"] = hashed_post_text
 
-# add digital signature
+""" # add digital signature
 signature = private_key.sign(
     hashed_post_text.encode("utf-8"), padding.PKCS1v15(), hashes.SHA256()
 )
@@ -267,7 +272,23 @@ encrypted_post_text = rsa_encrypt(public_key, hashed_post_text)
 encoded_encrypted_post_text = base64.b64encode(encrypted_post_text).decode(
     "utf-8"
 )  # encode_base64(encrypted_post_text)
-metadata["post_text_encrypted"] = encoded_encrypted_post_text
+metadata["post_text_encrypted"] = encoded_encrypted_post_text """
+
+# sign the raw post text directly (best practice)
+signature = private_key.sign(
+    postText.encode("utf-8"), padding.PKCS1v15(), hashes.SHA256()
+)
+metadata["signature"] = base64.b64encode(signature).decode("utf-8")
+
+# include certificate in base64
+metadata["certificate"] = base64.b64encode(cert_data).decode("utf-8")
+metadata["signed_at"] = datetime.now(timezone.utc)
+
+# optional: encrypt the hash for confidentiality
+encrypted = public_key.encrypt(
+    metadata["post_text_hash"].encode("utf-8"), padding.PKCS1v15()
+)
+metadata["post_text_encrypted"] = base64.b64encode(encrypted).decode("utf-8")
 
 # convertion happening here
 metadata = objectid_to_str(
@@ -275,8 +296,9 @@ metadata = objectid_to_str(
 )  # { key: objectid_to_str(value) for key, value in metadata.items() }
 
 metadata["signed_at"] = datetime.now(timezone.utc)
-metadata["certificate"] = cert_pem
-metadata["signature"] = signature_b64
+metadata["certificate"] = base64.b64encode(cert_data).decode("utf-8")  # cert_pem
+metadata["signature"] = base64.b64encode(signature).decode("utf-8")
+# signature_b64
 
 # save metadata to mongodb
 collection.insert_one(metadata)

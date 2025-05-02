@@ -29,7 +29,7 @@ chrome.contextMenus.create({
 });
 chrome.contextMenus.create({
     id: 'verify',
-    title: 'Verify Post',
+    title: 'Hash and Encrypt',
     parentId: "ContextMenu",
     type: "normal"
 });
@@ -39,6 +39,12 @@ chrome.contextMenus.create({
     parentId: "ContextMenu",
     type: "normal"
 }); 
+chrome.contextMenus.create({
+    id: 'verify_signature', 
+    title: 'Verify Signature', 
+    parentId: 'ContextMenu', 
+    contexts: ['all']
+})
 chrome.contextMenus.create({
     id: 'radio1',
     title: 'CA Option 1',
@@ -129,7 +135,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         // exec('../scraper/LI/test.py', (error, stdout, stderr) => {
         //     console.log(stdout);
         // });
-        const dummyPostUrl = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0"; 
+       // const dummyPostUrl = "https://www.linkedin.com/posts/santa-clara-university_scubeauty-activity-7314768387736227840-ewf0"; 
 
         chrome.scripting.executeScript({
             target: { tabId: tab.id },
@@ -147,7 +153,23 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         }); 
 
     }//end if
-    else if(info.menuItemId === 'metadata') {
+    else if (info.menuItemId === 'verify_signature') {
+        console.log('Verify Signature clicked'); 
+        // put in content.js
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id }, 
+            files: ['content.js']
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('Script injection failed:', chrome.runtime.lastError); 
+                return; 
+            }
+            chrome.tabs.sendMessage(tab.id, {
+                action: 'verify-signature', 
+                pageUrl: info.pageUrl
+            }); 
+        }); 
+    } else if(info.menuItemId === 'metadata') {
         console.log('View metadata');
     }
 });
