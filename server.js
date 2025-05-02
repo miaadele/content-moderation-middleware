@@ -1,17 +1,3 @@
-/*require('dotenv').config(); 
-
-const express = require('express');
-//const { exec } = require('child_process');
-//const connectDB = require('./config/db'); 
-const fs = require('fs'); 
-const path = require('path'); 
-const cors = require("cors"); 
-const bodyParser = require("body-parser"); 
-const app = express();
-const port = 8080;
-const verifyRoute = require('./routes/verify'); 
-require('dotenv').config(); */
-
 require('dotenv').config();
 
 const express = require('express');
@@ -22,11 +8,13 @@ const fs = require('fs');
 
 const app = express();
 const port = 8080;
+const ejs = require('ejs');
 
 // middleware 
 app.use(cors()); 
 app.use(bodyParser.json()); // to parse json
 app.use(bodyParser.urlencoded({ extended: true })); 
+app.set('view engine', 'ejs');
 
 // verify route
 const verifyRoute = require(`./routes/verify`);
@@ -47,47 +35,29 @@ app.get('/keys/public-key', (req, res) => {
 const connectDB = require('./config/db');
 connectDB();
 
+// side panel routing
+app.get('sidepanel', (req, res) => {
+    let id = 'testid'; 
+    res.render('sidepanel', {
+        uniqid: id // pass dynamic data here 
+    }); 
+}); 
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`); 
 }); 
 
-const { spawn } = require('child_process');
-
+//const { execFile } = require("child_process"); 
 // to run python file
 app.post("/run-python", (req, res) => {
-    const { postUrl, postText, likes } = req.body; 
+    const { postUrl, postText } = req.body; 
 
-    if ( !postUrl || !postText || !likes) {
+    if ( !postUrl || !postText ) {
         return res.status(400).send("Missing required fields."); 
     }
 
-    //const { exec } = require("child_process");
-    const pythonProcess = spawn('python', ['scraper/LI/scrape_lipost.py']); 
-
-    const jsonData = JSON.stringify({
-        postUrl, 
-        postText, 
-        likesCount: likes 
-    }); 
-
-    pythonProcess.stdin.write(jsonData); 
-    pythonProcess.stdin.end(); 
-
-    pythonProcess.stdout.on('data', (data) => {
-        console.log('stdout: ${data}'); 
-    }); 
-
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
-    });
-
-    pythonProcess.on('close', (code) => {
-        console.log(`python script exited with code ${code}`);
-        res.send("python script executed successfully");
-    });
-
-    /*console.log(`Post URL: ${postUrl}, Post Text: ${postText}, Likes: ${likes}`);
-    exec(`python scraper/LI/scrape_lipost.py "${postUrl}" "${postText}" "${likes}"`, (err, stdout, stderr) => {
+    const { exec } = require("child_process");
+    exec(`python scraper/LI/scrape_lipost.py "${postUrl}" "${postText}"`, (err, stdout, stderr) => {
         if (err) {
             console.error(`exec error: ${err}`);
             return res.status(500).send("Error running Python script");
@@ -95,34 +65,22 @@ app.post("/run-python", (req, res) => {
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
         res.send("Python script executed successfully");
-    });*/
-
-});
-/*// Connect to the database
-connectDB(); 
-
-app.post("/run-python", (req, res) => {
-    const { username, password, postUrl } = req.body; 
-
-    if (!username || !password || !postUrl ) {
-        return res.status(400).send("Missing required fields."); 
-    }
-
-    //console.log("Received data: ", {username, password, postUrl}); 
-
-    // Run the Python script using child_process
-    exec(`python3 scraper/LI/scrape_lipost.py "${username}" "${password}" "${postUrl}"`, (err, stdout, stderr) => {
-        if (err) {
-            console.error(`exec error: ${err}`);
-            res.status(500).send("Error running Python script");
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-        console.error(`stderr: ${stderr}`);
-        res.send("Python script executed successfully");
     });
+    /*const scriptPath = path.join(__dirname, "scraper", "LI", "scrape_lipost.py");
+    execFile("python", [scriptPath, postUrl, postText], { encoding: "utf8" }, (err, stdout, stderr) => {
+      if (err) {
+        console.error("Error executing Python script:", err);
+        return res.status(500).send("Error executing script");
+      }
+      console.log("Python stdout:", stdout);
+      if (stderr) console.error("Python stderr:", stderr);
+      res.send("Python script ran successfully.");
+    });*/
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});*/
+/*app.get('/', (req, req) => {
+    let id = 'testid';
+    res.render('sidepanel', {
+        uniqid: id
+    });
+})*/
