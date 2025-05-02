@@ -22,10 +22,24 @@ import sys
 # import subprocess
 import os
 
-import rsa
+# import rsa
+
+# crypto libraries
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import (
+    load_pem_private_key,
+    load_pem_public_key,
+)
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 
 # for passing arguments
 import json
+
+sys.stdout.reconfigure(
+    encoding="utf-8"
+)  # to make sure emojis and special characters don't get wonky
 
 # arguments from node
 """ if len(sys.argv) != 4:  # first one is process
@@ -60,11 +74,31 @@ collection = db["posts"]
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Get script directory
 
 # generate rsa keys: 2048-bit
-(public_key, private_key) = rsa.newkeys(2048)
+# (public_key, private_key) = rsa.newkeys(2048)
 
 
 def encode_base64(data):
     return base64.b64encode(data).decode("utf-8")
+
+
+# load signing key (the leaf private key)
+KEYS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "keys"))
+CERTS_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "certs")
+)
+
+key_path = os.path.join(KEYS_DIR, "mycodesign.key")
+cert_path = os.path.join(CERTS_DIR, "mycodesign.crt")
+
+with open(key_path, "rb") as key_file:
+    private_key = load_pem_private_key(key_file.read(), password=None)
+
+with open(cert_path, "rb") as cert_file:
+    # cert_data = cert_file.read()
+    # public_key = load_pem_public_key(cert_data)
+    cert_data = cert_file.read()
+    cert = x509.load_pem_x509_certificate(cert_data, default_backend())
+    public_key = cert.public_key()
 
 
 # function to convert mongodb objectid to string
@@ -116,8 +150,10 @@ def compute_sha256(text):
 
 # function to encrypt hashed text using RSA, please work
 def rsa_encrypt(public_key, text):
-    encrypted_data = rsa.encrypt(text.encode("utf-8"), public_key)
-    return encrypted_data
+    # encrypted_data = rsa.encrypt(text.encode("utf-8"), public_key)
+    # return encrypted_data
+    encrypted = public_key.encrypt(text.encode("utf-8"), padding.PKCS1v15())
+    return encrypted
 
 
 # extension path
@@ -194,6 +230,7 @@ class LIpostTimestampExtractor:
 
 metadata = {}
 # metadata["unique_post_id"] = post_id
+metadata["unique_post_id"] = id
 
 try:
     metadata["post_text"] = postText
@@ -222,37 +259,47 @@ except Exception as e:
 hashed_post_text = compute_sha256(clean_text(postText))
 metadata["post_text_hash"] = hashed_post_text
 
+""" # add digital signature
+signature = private_key.sign(
+    hashed_post_text.encode("utf-8"), padding.PKCS1v15(), hashes.SHA256()
+)
+signature_b64 = base64.b64encode(signature).decode("utf-8")
+
+cert_pem = base64.b64encode(cert_data).decode("utf-8")
+
 # encrypt hashed post using rsa
 encrypted_post_text = rsa_encrypt(public_key, hashed_post_text)
-encoded_encrypted_post_text = encode_base64(encrypted_post_text)
-metadata["post_text_encrypted"] = encoded_encrypted_post_text
+encoded_encrypted_post_text = base64.b64encode(encrypted_post_text).decode(
+    "utf-8"
+)  # encode_base64(encrypted_post_text)
+metadata["post_text_encrypted"] = encoded_encrypted_post_text """
+
+# sign the raw post text directly (best practice)
+signature = private_key.sign(
+    postText.encode("utf-8"), padding.PKCS1v15(), hashes.SHA256()
+)
+metadata["signature"] = base64.b64encode(signature).decode("utf-8")
+
+# include certificate in base64
+metadata["certificate"] = base64.b64encode(cert_data).decode("utf-8")
+metadata["signed_at"] = datetime.now(timezone.utc)
+
+# optional: encrypt the hash for confidentiality
+encrypted = public_key.encrypt(
+    metadata["post_text_hash"].encode("utf-8"), padding.PKCS1v15()
+)
+metadata["post_text_encrypted"] = base64.b64encode(encrypted).decode("utf-8")
 
 # convertion happening here
 metadata = objectid_to_str(
     metadata
 )  # { key: objectid_to_str(value) for key, value in metadata.items() }
 
+metadata["signed_at"] = datetime.now(timezone.utc)
+metadata["certificate"] = base64.b64encode(cert_data).decode("utf-8")  # cert_pem
+metadata["signature"] = base64.b64encode(signature).decode("utf-8")
+# signature_b64
 
 # save metadata to mongodb
 collection.insert_one(metadata)
 print("Post metadata saved to MongoDB.")
-
-# Save metadata to JSON file
-# post_id = post_url.split("/")[-1]  # Extract unique post ID from URL
-# json_filename = f"linkedin_post_{post_id}.json"
-
-
-# remove characters invalid in windows
-# def clean_filename(filename):
-#    return re.sub(r'[<>:"/\\|?*]', "_", filename)
-
-
-# json_filename = clean_filename(json_filename)
-
-# with open(json_filename, "w", encoding="utf-8") as json_file:
-#    json.dump(metadata, json_file, indent=4, ensure_ascii=False)
-
-# print(f"Post metadata saved to {json_filename}")
-
-# Close browser
-# browser.quit()

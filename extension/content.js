@@ -1,5 +1,71 @@
+let lastRightClickedPost = null;
+
+// Capture the last right-clicked post container
+document.addEventListener('contextmenu', event => {
+  const post = event.target.closest('.update-components-text') ||
+               event.target.closest('[data-urn^="urn:li:activity:"]');
+  if (post) {
+    lastRightClickedPost = post;
+    console.log('Stored lastRightClickedPost:', lastRightClickedPost);
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('content.js received message:', request);
+
+  if (request.action === 'verify-post') {
+    if (!lastRightClickedPost) {
+      console.error('No post was right-clicked.');
+      return;
+    }
+    const likesElem = lastRightClickedPost.querySelector('.social-details-social-counts__reactions-count');
+    const likesCount = likesElem ? likesElem.innerText.trim() : '0';
+    const postText = lastRightClickedPost.innerText.trim();
+    console.log('verify-post -> postText:', postText);
+    console.log('verify-post -> likesCount:', likesCount);
+
+    fetch('http://localhost:8080/run-python', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postUrl: request.postUrl, postText, likes: likesCount })
+    })
+    .then(res => res.text())
+    .then(data => console.log('run-python response:', data))
+    .catch(err => console.error('Error sending to /run-python:', err));
+
+  } else if (request.action === 'verify-signature') {
+    if (!request.pageUrl) {
+      console.error('No pageUrl provided');
+      return;
+    }
+    const idMatch = request.pageUrl.match(/\d{19}/);
+    if (!idMatch) {
+      console.error('No LinkedIn post ID found in URL');
+      return;
+    }
+    const uniqueID = idMatch[0];
+    console.log('verify-signature -> uniqueID:', uniqueID);
+
+    fetch('http://localhost:8080/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uniqueID })
+    })
+    .then(res => res.json())
+    .then(result => {
+      console.log('verify-signature result:', result);
+      if (result.verified) {
+        alert('Signature valid and verified!');
+      } else {
+        alert('Signature invalid: ' + (result.error || 'unknown error'));
+      }
+    })
+    .catch(err => console.error('Error calling /verify:', err));
+  }
+});
+
 // preventing overloading with multiple requests
-if (!window.hasRunAscertion) {
+/*if (!window.hasRunAscertion) {
     window.hasRunAscertion = true; 
 
     let lastRightClickedPost = null;
@@ -65,6 +131,36 @@ if (!window.hasRunAscertion) {
         }
     });
 
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === 'verify-signature') {
+            // get the 19-digit unique ID from url
+            const idMatch = request.pageUrl.match(/\d{19}/); 
+            if (!idMatch) {
+                console.error('No LinkedIn post id'); 
+                return; 
+            }
+            const uniqueID = idMatch[0]; 
+            console.log('Verifying signature for post ID:', uniqueID); 
+
+            // call verify endpoint
+            fetch('http://localhost:8080/verify', {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ uniqueID })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.verified) {
+                    alert('Signature valid and verified!'); 
+                } else {
+                    alert('Signature not valid and verified'); 
+                }
+            })
+            .catch(err => {
+                console.error('Error calling verify:', err); 
+            })
+        }
+    })*/
 
     /*
     function postData(input) {
@@ -90,10 +186,10 @@ if (!window.hasRunAscertion) {
     }
     */
 
-    function callbackfn(response) {
+    /*function callbackfn(response) {
         console.log(response);
     }
-
+    }*/
     //postData('data');
 
     // Use MutationObserver to detect when new posts are added dynamically
@@ -125,4 +221,3 @@ if (!window.hasRunAscertion) {
 
     observer2.observe(document.body, { childList: true, subtree: true }); 
     */
-}
