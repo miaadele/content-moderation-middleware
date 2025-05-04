@@ -66,8 +66,17 @@ app.post('/verify', (req, res) => {
             return res.status(500).json({ error: 'Verification script failed' }); 
         }
         // parse output
-        const ok = /valid/i.test(output); 
-        res.json({ verified: ok, details: output }); 
+        // const ok = /valid/i.test(output); 
+        // res.json({ verified: ok, details: output }); 
+        let parsed;
+        try {
+            parsed = JSON.parse(output);
+        } catch (e) {
+            console.error('Failed to parse verify_post output:', output);
+            return res.status(500).json({ error: 'Invalid JSON output from Python script' });
+        }
+
+        res.json({ verified: parsed.verified === true, details: output });
     })
 })
 
@@ -156,6 +165,7 @@ app.post("/run-python", (req, res) => {
             console.error("Python script failed:", errorOutput);
             return res.status(500).send("Python script failed.");
         }
+        
         console.log("Python script output:", output);
         res.status(200).send("Python script executed successfully.");
     });

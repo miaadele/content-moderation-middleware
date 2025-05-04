@@ -21,8 +21,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const likesElem = lastRightClickedPost.querySelector('.social-details-social-counts__reactions-count');
     const likesCount = likesElem ? likesElem.innerText.trim() : '0';
     const postText = lastRightClickedPost.innerText.trim();
-    console.log('verify-post -> postText:', postText);
-    console.log('verify-post -> likesCount:', likesCount);
+    //console.log('verify-post -> postText:', postText);
+    //console.log('verify-post -> likesCount:', likesCount);
 
     fetch('http://localhost:8080/run-python', {
       method: 'POST',

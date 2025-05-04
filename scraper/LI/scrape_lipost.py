@@ -302,4 +302,4 @@ metadata["signature"] = base64.b64encode(signature).decode("utf-8")
 
 # save metadata to mongodb
 collection.insert_one(metadata)
-print("Post metadata saved to MongoDB.")
+print(json.dumps({"success": True, "message": "Post metadata saved to MongoDB."}))
