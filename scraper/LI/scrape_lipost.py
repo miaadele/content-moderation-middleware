@@ -66,7 +66,7 @@ dotenv_path = os.path.join(
 )
 load_dotenv(dotenv_path)
 mongo_uri = os.getenv("MONGO_URI")
-print("Using MongoDB URI:", mongo_uri)
+# print("Using MongoDB URI:", mongo_uri)
 client = pymongo.MongoClient(mongo_uri)
 db = client["linkedin_scraper"]
 collection = db["posts"]
