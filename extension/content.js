@@ -68,7 +68,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const uniqueID = match[0]; 
         console.log('view-metadata -> uniqueID:', uniqueID); 
 
-        fetch('http://localhost:8080/metadata/${uniqueID}')
+        fetch(`http://localhost:8080/metadata/${uniqueID}`)
             .then(res => res.json())
             .then(data => {
                 // sidebar container
@@ -95,7 +95,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 sidebar.innerHTML = `
                     <button id="sidebar-close" style="position:absolute; top: 8px; right: 8px; background: none; border: none; font-size:16px; cursor:pointer;">X</button>
                     <h2>Post Metadata</h2>
-                    <p><strong>ID:</strong> ${data.uniqueID}</p>
                     <p><strong>Post Text:</strong> ${data.post_text}</p>
                     <p><strong>Likes:</strong> ${data.likes}</p>
                     <p><strong>Posted:</strong> ${data.post_date}</p>
