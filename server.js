@@ -15,6 +15,8 @@ const { spawn } = require("child_process");
 app.use(cors()); 
 app.use(bodyParser.json()); // to parse json
 app.use(bodyParser.urlencoded({ extended: true })); 
+
+const mongoose = require('mongoose'); 
 //app.set('view engine', 'ejs');
 
 // verify route
@@ -34,16 +36,16 @@ app.get('/keys/public-key', (req, res) => {
 });
 
 const connectDB = require('./config/db');
-const { uniqueSort } = require('jquery');
+//const { uniqueSort } = require('jquery');
 connectDB();
 
 // side panel routing
-app.get('sidepanel', (req, res) => {
-    let id = 'testid'; 
-    res.render('sidepanel', {
-        uniqid: id // pass dynamic data here 
-    }); 
-}); 
+//app.get('sidepanel', (req, res) => {
+//    let id = 'testid'; 
+//    res.render('sidepanel', {
+//        uniqid: id // pass dynamic data here 
+//    }); 
+//}); 
 
 app.post('/verify', (req, res) => {
     const { uniqueID } = req.body; 
@@ -69,9 +71,29 @@ app.post('/verify', (req, res) => {
     })
 })
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`); 
+// metadata for a single post, please work then we don't need to use ejs
+app.get('/metadata/:uniqueID', async (req, res) => {
+    const uniqueID = req.params.uniqueID;
+  //  console.log('uniqueID param:', uniqueID, 'type:', typeof uniqueID);
+    if (!uniqueID) return res.status(400).json({ error: 'uniqueID required' }); 
+
+    try{
+        const postsColl = mongoose.connection.db.collection('posts'); //await db.collection('posts').findOne({ unique_post_id: uniqueID }); 
+       // const doc = await postsColl.findOne({ unique_post_id: uniqueID }); 
+        const doc = await postsColl.findOne({ unique_post_id: uniqueID }); 
+        console.log(uniqueID); 
+        console.log(doc); 
+        if (!doc) return res.status(404).json({ error: 'not found' }); 
+
+        // the fields shown
+        const { post_text, likes, post_date, signed_at, post_text_hash } = doc; 
+        return res.json({ post_text, likes, post_date, signed_at, post_text_hash }); 
+    } catch (err) {
+        console.error('Error fetching metadata:', err); 
+        return res.status(500).json({ error: 'server error' }); 
+    }
 }); 
+
 
 //const { execFile } = require("child_process"); 
 // to run python file
@@ -143,7 +165,9 @@ app.post("/run-python", (req, res) => {
     pythonProcess.stdin.end();
 });
 
-
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`); 
+}); 
 
 /*app.get('/', (req, req) => {
     let id = 'testid';

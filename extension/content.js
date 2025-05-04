@@ -61,6 +61,55 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     })
     .catch(err => console.error('Error calling /verify:', err));
+  } else if (request.action === 'view-metadata') {
+        const match = request.pageUrl.match(/\d{19}/); 
+        if (!match) return console.error('No post ID in URL'); 
+
+        const uniqueID = match[0]; 
+        console.log('view-metadata -> uniqueID:', uniqueID); 
+
+        fetch(`http://localhost:8080/metadata/${uniqueID}`)
+            .then(res => res.json())
+            .then(data => {
+                // sidebar container
+                let sidebar = document.getElementById('content-sidebar'); 
+                if (!sidebar) {
+                    sidebar = document.createElement('div'); 
+                    sidebar.id = 'content-sidebar'; 
+                    Object.assign(sidebar.style, {
+                        position: 'fixed', 
+                        top: '0', 
+                        right: '0', 
+                        width: '320px', 
+                        height: '100%', 
+                        background: '#fff', 
+                        overflowY: 'auto', 
+                        boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.2)', 
+                        padding: '12px', 
+                        zIndex: '999999'
+                    }); 
+                    document.body.appendChild(sidebar); 
+                }
+
+                // get metadata
+                sidebar.innerHTML = `
+                    <button id="sidebar-close" style="position:absolute; top: 8px; right: 8px; background: none; border: none; font-size:16px; cursor:pointer;">X</button>
+                    <h2>Post Metadata</h2>
+                    <p><strong>Post Text:</strong> ${data.post_text}</p>
+                    <p><strong>Likes:</strong> ${data.likes}</p>
+                    <p><strong>Posted:</strong> ${data.post_date}</p>
+                    <p><strong>Signed At:</strong> ${data.signed_at}</p>
+                    <p><strong>Text Hashed:</strong> ${data.post_text_hash}</p>
+                `; 
+
+                const closeBtn = sidebar.querySelector('#sidebar-close'); 
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        sidebar.remove(); 
+                    }); 
+                }
+            })
+            .catch(err => console.error('Metadata fetch error:', err)); 
   }
 });
 

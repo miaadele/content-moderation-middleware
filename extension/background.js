@@ -170,7 +170,19 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             }); 
         }); 
     } else if(info.menuItemId === 'metadata') {
-        console.log('View metadata');
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id }, 
+            files: ['content.js']
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('injection failed:', chrome.runtime.lastError); 
+                return; 
+            }
+            chrome.tabs.sendMessage(tab.id, {
+                action: 'view-metadata', 
+                pageUrl: info.pageUrl
+            }); 
+        }); 
     }
 });
 
