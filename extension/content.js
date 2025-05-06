@@ -2,8 +2,10 @@ let lastRightClickedPost = null;
 
 // Capture the last right-clicked post container
 document.addEventListener('contextmenu', event => {
-  const post = event.target.closest('.update-components-text') ||
-               event.target.closest('[data-urn^="urn:li:activity:"]');
+  //const post = event.target.closest('.update-components-text') ||
+   //            event.target.closest('[data-urn^="urn:li:activity:"]');
+   const post = event.target.closest('[data-urn^="urn:li:activity:"]') ||
+                event.target.closest('.update-components-text');
   if (post) {
     lastRightClickedPost = post;
     console.log('Stored lastRightClickedPost:', lastRightClickedPost);
@@ -18,20 +20,55 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.error('No post was right-clicked.');
       return;
     }
-    const likesElem = lastRightClickedPost.querySelector('.social-details-social-counts__reactions-count');
+    //const likesElem = lastRightClickedPost.querySelector('.social-details-social-counts__reactions-count');
+    const likesElem = lastRightClickedPost.querySelector('.social-details-social-counts__social-proof-fallback-number');
     const likesCount = likesElem ? likesElem.innerText.trim() : '0';
-    const postText = lastRightClickedPost.innerText.trim();
+    //const postText = lastRightClickedPost.innerText.trim();
+    
     //console.log('verify-post -> postText:', postText);
     //console.log('verify-post -> likesCount:', likesCount);
-
+    // try in-order until we find a content node
+    const contentSelectors = [
+        '.update-components-text',
+        '.feed-shared-inline-show-more-text',
+        '.feed-shared-text__text-view',
+        '.feed-shared-text span.break-words'
+    ];
+    
+    let postText = '';
+    for (let sel of contentSelectors) {
+        const el = lastRightClickedPost.querySelector(sel);
+        if (el && el.innerText.trim()) {
+        postText = el.innerText.trim();
+        break;
+        }
+    }
+    
+    // fallback to the full container only if none matched
+    if (!postText) {
+        postText = lastRightClickedPost.innerText.trim();
+    }
+    
     fetch('http://localhost:8080/run-python', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ postUrl: request.postUrl, postText, likes: likesCount })
     })
-    .then(res => res.text())
-    .then(data => console.log('run-python response:', data))
-    .catch(err => console.error('Error sending to /run-python:', err));
+    .then(res => {
+        if (!res.ok) {
+            return res.text().then(t => { throw new Error(t || res.statusText); }); 
+        }
+        return res.text(); 
+    })
+
+    .then(data => { 
+        console.log('run-python response:', data); 
+        alert('Post hashed, encrypted, and saved to the database!'); 
+    })
+    .catch(err => {
+        console.error('Error sending to /run-python:', err); 
+        alert('Failed to save post: \n' + err.message); 
+    });
 
   } else if (request.action === 'verify-signature') {
     if (!request.pageUrl) {
