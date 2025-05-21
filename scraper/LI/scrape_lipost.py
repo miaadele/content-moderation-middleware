@@ -1,4 +1,7 @@
-#LinkedIn Metadata Scraper
+# LinkedIn Metadata Scraper
+# Created by Vani Aggarwal and Mia Lassiter
+# April 2025
+
 from dotenv import load_dotenv
 import json
 import re
