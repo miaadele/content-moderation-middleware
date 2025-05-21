@@ -101,7 +101,8 @@ def rsa_encrypt(public_key, text):
     encrypted = public_key.encrypt(text.encode("utf-8"), padding.PKCS1v15())
     return encrypted
 
-idRegex = re.compile(r"\d{19}") # a 19-digit number is found in the LinkedIn URL. This is the post ID.
+# a 19-digit number is found in the LinkedIn URL. This is the post ID.
+idRegex = re.compile(r"\d{19}") 
 mo = idRegex.search(post_url)
 if mo:
     id = mo.group()
