@@ -115,7 +115,6 @@ timestampbin = bin = format(intid, "b")
 timestamp = timestampbin[:41]
 timestamp = int(timestamp, 2) / 1000
 
-
 # post timestamp conversion code is from Ollie-Boyd's github
 class LIpostTimestampExtractor:
     @staticmethod
@@ -127,10 +126,8 @@ class LIpostTimestampExtractor:
             date = datetime.fromtimestamp(timestamp_s)
         else:
             date = datetime.fromtimestamp(timestamp_s, tz=timezone.utc)
-
         if return_datetime:
             return date
-
         return date.strftime(
             "%a, %d %b %Y %H:%M:%S GMT" + (" (UTC)" if not get_local else "")
         )
@@ -143,13 +140,10 @@ try:
     metadata["post_text"] = postText
 except:
     metadata["post_text"] = "Not found"
-
 try:
     metadata["likes"] = likes
-
 except:
     metadata["likes"] = "0"
-
 try:
     metadata["post_date"] = LIpostTimestampExtractor.format_timestamp(timestamp)
 except Exception as e:
