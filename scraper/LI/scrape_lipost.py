@@ -101,7 +101,8 @@ def rsa_encrypt(public_key, text):
     encrypted = public_key.encrypt(text.encode("utf-8"), padding.PKCS1v15())
     return encrypted
 
-idRegex = re.compile(r"\d{19}") # a 19-digit number is found in the LinkedIn URL. This is the post ID.
+# a 19-digit number is found in the LinkedIn URL. This is the post ID.
+idRegex = re.compile(r"\d{19}") 
 mo = idRegex.search(post_url)
 if mo:
     id = mo.group()
@@ -114,7 +115,6 @@ timestampbin = bin = format(intid, "b")
 timestamp = timestampbin[:41]
 timestamp = int(timestamp, 2) / 1000
 
-
 # post timestamp conversion code is from Ollie-Boyd's github
 class LIpostTimestampExtractor:
     @staticmethod
@@ -126,10 +126,8 @@ class LIpostTimestampExtractor:
             date = datetime.fromtimestamp(timestamp_s)
         else:
             date = datetime.fromtimestamp(timestamp_s, tz=timezone.utc)
-
         if return_datetime:
             return date
-
         return date.strftime(
             "%a, %d %b %Y %H:%M:%S GMT" + (" (UTC)" if not get_local else "")
         )
@@ -142,13 +140,10 @@ try:
     metadata["post_text"] = postText
 except:
     metadata["post_text"] = "Not found"
-
 try:
     metadata["likes"] = likes
-
 except:
     metadata["likes"] = "0"
-
 try:
     metadata["post_date"] = LIpostTimestampExtractor.format_timestamp(timestamp)
 except Exception as e:
